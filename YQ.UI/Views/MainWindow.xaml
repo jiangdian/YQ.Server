@@ -1,14 +1,52 @@
-﻿<Window x:Class="YQ.UI.Views.MainWindow"
+﻿<controls:MetroWindow x:Class="YQ.UI.Views.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:prism="http://prismlibrary.com/"
+        xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
         xmlns:viewModels="clr-namespace:YQ.UI.ViewModels"
         xmlns:local="clr-namespace:YQ.UI.Views"
-        mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        mc:Ignorable="d" 
+        Icon="YQ.ico"
+        Title="{Binding STitle}" Height="600" Width="1000">
+    <controls:MetroWindow.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Themes/Light.Green.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </controls:MetroWindow.Resources>
+    <controls:MetroWindow.RightWindowCommands>
+        <controls:WindowCommands ShowSeparators="False">
+            <Button Content="3"  FontFamily="Wingdings" FontSize="20" Command="{Binding About}"/>
+        </controls:WindowCommands>
+    </controls:MetroWindow.RightWindowCommands>
     <Grid>
-
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="30"/>
+        </Grid.RowDefinitions>
+        <controls:MetroTabControl  controls:TabControlHelper.Underlined="TabPanel" >
+            <controls:MetroTabControl.Items>
+                <controls:MetroTabItem Header="监听" controls:HeaderedControlHelper.HeaderFontSize="16" Margin="10,0" Width="60">
+                    <ContentControl prism:RegionManager.RegionName="OneRegion"/>
+                </controls:MetroTabItem>
+                <controls:MetroTabItem Header="系统配置" controls:HeaderedControlHelper.HeaderFontSize="16" Margin="10,0" Width="90">
+                    <ContentControl prism:RegionManager.RegionName="TwoRegion"/>
+                </controls:MetroTabItem>
+                <controls:MetroTabItem Header="串口配置" controls:HeaderedControlHelper.HeaderFontSize="16" Margin="10,0" Width="90">
+                    <ContentControl prism:RegionManager.RegionName="ThreeRegion"/>
+                </controls:MetroTabItem>
+                <controls:MetroTabItem Header="单点测试" controls:HeaderedControlHelper.HeaderFontSize="16" Margin="10,0" Width="90">
+                    <ContentControl prism:RegionManager.RegionName="FourRegion"/>
+                </controls:MetroTabItem>
+            </controls:MetroTabControl.Items>
+        </controls:MetroTabControl>
+        <StatusBar  Grid.Row="1">
+            <StatusBarItem HorizontalContentAlignment="Right" Padding="0 0 10 0">Copyright © 2024 www.yuanqitec.com All Rights Reserved. 元启工业技术有限公司 版权所有</StatusBarItem>
+        </StatusBar>
     </Grid>
-</Window>
+</controls:MetroWindow>

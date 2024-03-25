@@ -1,6 +1,7 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System;
+using System.Runtime.CompilerServices;
 
-namespace YuanQi.Tool
+namespace YQ.Tool
 {
     public interface ILogService
     {

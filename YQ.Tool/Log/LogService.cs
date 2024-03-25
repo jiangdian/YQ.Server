@@ -1,9 +1,11 @@
 ﻿using log4net;
 using log4net.Config;
+using System;
 using System.Globalization;
+using System.IO;
 using System.Runtime.CompilerServices;
 
-namespace YuanQi.Tool
+namespace YQ.Tool
 {
 
     public  class LogService : ILogService

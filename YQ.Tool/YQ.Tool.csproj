@@ -1,19 +1,22 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>WinExe</OutputType>
     <TargetFramework>net6.0-windows</TargetFramework>
     <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Prism.DryIoc" Version="8.1.97" />
+    <Reference Include="log4net">
+      <HintPath>Resource\log4net.dll</HintPath>
+    </Reference>
+    <Reference Include="WindowsBase">
+      <HintPath>Resource\WindowsBase.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\YQ.Tool\YQ.Tool.csproj" />
-    <ProjectReference Include="..\YQ.UI\YQ.UI.csproj" />
+    <Folder Include="UDP\" />
   </ItemGroup>
 
 </Project>
