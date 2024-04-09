@@ -2,6 +2,8 @@
 using System.ComponentModel;
 using System.Net;
 using System.Net.Sockets;
+using System.Windows;
+using System.Xml.Linq;
 
 namespace YQ.Tool.UDP
 {
@@ -69,8 +71,12 @@ namespace YQ.Tool.UDP
         {
         //    Console.WriteLine("333");
             udpserver.NetWork.Send(data, data.Length, remote);
-          //  Console.WriteLine("444");
-            DataSended?.BeginInvoke(data, null, null);
+            //  Console.WriteLine("444");
+            Application.Current.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                DataSended(data);
+            }));
+            
            // Console.WriteLine("555");
         }
 
@@ -91,7 +97,11 @@ namespace YQ.Tool.UDP
                     ConnName = userver.ipLocalEndPoint.Port + "->" + fclient.ToString();
                     if (DataReceived != null)
                     {
-                        DataReceived.BeginInvoke(recdata, fclient, null, null);//异步输出数据
+                        Application.Current.Dispatcher.BeginInvoke(new Action(() =>
+                        {
+                            DataReceived(recdata, fclient);
+                        }));
+                        //DataReceived.BeginInvoke(recdata, fclient, null, null);//异步输出数据
                     }
                 }
             }

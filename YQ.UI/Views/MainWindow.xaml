@@ -9,7 +9,7 @@
         xmlns:local="clr-namespace:YQ.UI.Views"
         mc:Ignorable="d" 
         Icon="YQ.ico"
-        Title="{Binding STitle}" Height="600" Width="1000">
+        Title="{Binding STitle}" Height="800" Width="1350">
     <controls:MetroWindow.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>

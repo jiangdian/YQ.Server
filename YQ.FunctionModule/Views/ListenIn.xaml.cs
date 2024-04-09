@@ -24,5 +24,15 @@ namespace YQ.FunctionModule.Views
         {
             InitializeComponent();
         }
+
+        private void rtxtSrvRcv_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            rtxtSrvRcv.ScrollToEnd();
+        }
+
+        private void rtxtSrvSend_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            rtxtSrvSend.ScrollToEnd();
+        }
     }
 }

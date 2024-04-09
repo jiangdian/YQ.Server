@@ -3,10 +3,57 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:prism="http://prismlibrary.com/" 
+             prism:ViewModelLocator.AutoWireViewModel="True"
+             xmlns:valueConvert="clr-namespace:YQ.FunctionModule.Common"
              xmlns:local="clr-namespace:YQ.FunctionModule.Views"
+             xmlns:controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
+             d:DesignHeight="450" d:DesignWidth="1000">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <Style x:Key="ColumnHeaderStyle" TargetType="DataGridColumnHeader">
+                <Setter Property="HorizontalContentAlignment"  Value="Center"/>
+            </Style>
+            <valueConvert:TaskStateEnumValueConvert x:Key="TaskStateEnumValueConvert"/>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Themes/Light.Green.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+           
+        </ResourceDictionary>
+    </UserControl.Resources>
     <Grid>
-        <TextBlock Text="33333"/>
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition Height="40"/>
+        </Grid.RowDefinitions>
+        <DataGrid   ColumnHeaderStyle="{StaticResource ColumnHeaderStyle}"  ItemsSource="{Binding DataList}"  Height="Auto"  AutoGenerateColumns="False" 
+                    CanUserAddRows="False"  ScrollViewer.VerticalScrollBarVisibility="Hidden" MinRowHeight="36" IsReadOnly="True">
+            <DataGrid.Columns>
+                <!--<DataGridTextColumn Header="序号" Width="*" Binding="{Binding ID}" Visibility="Collapsed"/>
+                <DataGridTextColumn Header="表位" Width="*" Binding="{Binding MeterID}"/>
+                <DataGridTextColumn Header="RS485-1" Width="3*" Binding="{Binding RS4851}"/>
+                <DataGridTextColumn Header="RS485-2" Width="3*" Binding="{Binding RS4852}"/>
+                <DataGridTextColumn Header="RJ45-1-485-1" Width="3*" Binding="{Binding RJ4514851}"/>
+                <DataGridTextColumn Header="RJ45-1-485-2" Width="3*" Binding="{Binding RJ4514852}"/>
+                <DataGridTextColumn Header="RJ45-2-485-1" Width="3*" Binding="{Binding RJ4524851}"/>
+                <DataGridTextColumn Header="RJ45-2-485-2" Width="3*" Binding="{Binding RJ4524851}"/>
+                <DataGridTextColumn Header="预留" Width="3*" Binding="{Binding Bak}" Visibility="Collapsed"/>
+                <DataGridTextColumn Header="蓝牙" Width="3*" Binding="{Binding Bluetooth}"/>
+                <DataGridTextColumn Header="事件上报" Width="3*" Binding="{Binding EventReport}"/>
+                <DataGridTextColumn Header="CCO" Width="3*" Binding="{Binding CCO}"/>-->
+                <DataGridTextColumn Header="序号" Width="*" Binding="{Binding ID}"/>
+                <DataGridTextColumn Header="表位" Width="*" Binding="{Binding MeterID}"/>
+                <DataGridTextColumn Header="串口名" Width="*" Binding="{Binding ComName}"/>
+                <DataGridTextColumn Header="串口类型" Width="3*" Binding="{Binding ComType,Converter={StaticResource TaskStateEnumValueConvert}}"/>
+                <DataGridTextColumn Header="串口参数" Width="3*" Binding="{Binding ComPara}"/>
+                <DataGridTextColumn Header="串口协议" Width="3*" Binding="{Binding ComPro}"/>
+                                
+            </DataGrid.Columns>
+        </DataGrid>
+        <Button Grid.Row="1"  Width="100" Name="btnSend" Margin="5" Content="刷新" FontSize="12" Command="{Binding SaveCommand}"/>
     </Grid>
 </UserControl>

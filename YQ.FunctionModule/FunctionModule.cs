@@ -1,15 +1,4 @@
-﻿using Prism.Ioc;
-using Prism.Modularity;
-using Prism.Regions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using YQ.FunctionModule.Views;
-
-namespace YQ.FunctionModule
+﻿namespace YQ.FunctionModule
 {
     public class FunctionModule : IModule
     {
@@ -24,6 +13,8 @@ namespace YQ.FunctionModule
 
         public void RegisterTypes(IContainerRegistry containerRegistry)
         {
+            containerRegistry.RegisterSingleton<ILogService, LogService>();
+            containerRegistry.RegisterSingleton<IFreeSqlHelper>(() => new FreeSqliteHelper(ConfigurationManager.AppSettings["SqlStr"].ToString()));
         }
     }
 }

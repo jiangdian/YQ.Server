@@ -30,7 +30,7 @@
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
         <WrapPanel  Orientation="Horizontal"  HorizontalAlignment="Left" Width="982" Grid.ColumnSpan="2">
-            <TextBox Width="400" Name="txtSend" Margin="{StaticResource ControlMargin}" Text="cmd=0101,sn=00,data=null" />
+            <TextBox Width="400" Name="txtSend" Margin="{StaticResource ControlMargin}" Text="{Binding SCmd}" />
             <ComboBox Name="cmbCmds" Width="120" DisplayMemberPath="Name" ItemsSource="{Binding CmdList}">
                 <i:Interaction.Triggers>
                     <i:EventTrigger EventName="SelectionChanged">
@@ -38,10 +38,12 @@
                     </i:EventTrigger>
                 </i:Interaction.Triggers>
             </ComboBox>
-            <Button Width="100" Name="btnSend" Margin="{StaticResource ControlMargin}" Content="发送命令" FontSize="12"/>
-            <Button Width="100" Name="btnStartSrv"  Margin="{StaticResource ControlMargin}" Content="启动服务" FontSize="12"/>
-            <Button Width="100" Name="btnStopSrv" Margin="{StaticResource ControlMargin}" Content="停止服务"  FontSize="12"/>
-            <Button Width="100" Name="btnClear" Margin="{StaticResource ControlMargin}" Content="清除信息" FontSize="12"/>
+            <Button Width="100" Name="btnSend" Margin="{StaticResource ControlMargin}" Content="发送命令" FontSize="12" Command="{Binding SendCommand}"/>
+            <Button Width="100" Name="btnStartSrv"  Margin="{StaticResource ControlMargin}" Content="启动服务" FontSize="12" Command="{Binding StartCommand}"/>
+            <Button Width="100" Name="btnStopSrv" Margin="{StaticResource ControlMargin}" Content="停止服务"  FontSize="12" Command="{Binding StopCommand}"/>
+            <Button Width="100" Name="btnClear" Margin="{StaticResource ControlMargin}" Content="清除信息" FontSize="12" Command="{Binding ClearCommand}"/>
         </WrapPanel>
+        <TextBox x:Name="rtxtSrvRcv" Grid.Row="1" Margin="5 5 5 5" Grid.Column="0"  ScrollViewer.VerticalScrollBarVisibility="Auto" TextChanged="rtxtSrvRcv_TextChanged" Text="{Binding TextRcv}"/>
+        <TextBox x:Name="rtxtSrvSend" Grid.Row="1" Grid.Column="1" Margin="5 5 5 5"  ScrollViewer.VerticalScrollBarVisibility="Auto" TextChanged="rtxtSrvSend_TextChanged" Text="{Binding TextSend}"/>
     </Grid>
 </UserControl>

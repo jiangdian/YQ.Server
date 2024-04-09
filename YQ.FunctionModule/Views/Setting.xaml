@@ -1,12 +1,98 @@
 ﻿<UserControl x:Class="YQ.FunctionModule.Views.Setting"
-             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+            xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:prism="http://prismlibrary.com/" 
+             prism:ViewModelLocator.AutoWireViewModel="True"
              xmlns:local="clr-namespace:YQ.FunctionModule.Views"
+             xmlns:controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
+             d:DesignHeight="450" d:DesignWidth="1000">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Themes/Light.Green.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
     <Grid>
-        <TextBlock Text="2222"/>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition Height="80"/>
+        </Grid.RowDefinitions>
+        <StackPanel Margin="10">
+            <StackPanel Orientation="Horizontal" Margin="0 0 0 10">
+                <TextBlock Text="表位数量:" VerticalAlignment="Center" Width="80" TextAlignment="Right" Margin="0 0 10 0"/>
+                <TextBox  Width="150" Text="{Binding MeterNum}" VerticalAlignment="Center" />
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Margin="0 0 0 10">
+                <TextBlock Text="主控板COM:" VerticalAlignment="Center" Width="80" TextAlignment="Right" Margin="0 0 10 0"/>
+                <TextBox  Width="150" Text="{Binding ComParamter}" VerticalAlignment="Center"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Margin="0 0 0 10">
+                <TextBlock Text="主控型号:" VerticalAlignment="Center" Width="80" TextAlignment="Right" Margin="0 0 10 0"/>
+                <TextBox  Width="150" Text="{Binding PowerStyle}" VerticalAlignment="Center"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Margin="0 0 0 10">
+                <TextBlock Text="处理重复队列:" VerticalAlignment="Center" Width="80" TextAlignment="Right" Margin="0 0 10 0"/>
+                <TextBox  Width="150" Text="{Binding defaultschemeid}" VerticalAlignment="Center"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Margin="0 0 0 10">
+                <TextBlock Text="时钟频率:" VerticalAlignment="Center" Width="80" TextAlignment="Right" Margin="0 0 10 0"/>
+                <TextBox  Width="150" Text="{Binding edtFreq}" VerticalAlignment="Center"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Margin="0 0 0 10">
+                <TextBlock Text="额定电压(V):" VerticalAlignment="Center" Width="80" TextAlignment="Right" Margin="0 0 10 0"/>
+                <TextBox  Width="150" Text="{Binding MeterUb}" VerticalAlignment="Center"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Margin="0 0 0 10">
+                <TextBlock Text="频率(HZ):" VerticalAlignment="Center" Width="80" TextAlignment="Right" Margin="0 0 10 0"/>
+                <TextBox  Width="150" Text="{Binding MeterFreq}" VerticalAlignment="Center"/>
+            </StackPanel>
+        </StackPanel>
+        <StackPanel Grid.Column="1" Margin="10">
+            <StackPanel Orientation="Horizontal" Margin="0 0 0 10">
+                <TextBlock Text="网络继电器1IP:" VerticalAlignment="Center" Width="95" TextAlignment="Right" Margin="0 0 10 0"/>
+                <TextBox  Width="150" Text="{Binding JY1IP}" VerticalAlignment="Center"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Margin="0 0 0 10">
+                <TextBlock Text="网络继电器1端口:" VerticalAlignment="Center" Width="95" TextAlignment="Right" Margin="0 0 10 0"/>
+                <TextBox  Width="150" Text="{Binding JY1Port}" VerticalAlignment="Center"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Margin="0 0 0 10">
+                <TextBlock Text="网络继电器1地址:" VerticalAlignment="Center" Width="95" TextAlignment="Right" Margin="0 0 10 0"/>
+                <TextBox  Width="150" Text="{Binding JY1Addr}" VerticalAlignment="Center"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Margin="0 0 0 10">
+                <TextBlock Text="网络继电器1IO:" VerticalAlignment="Center" Width="95" TextAlignment="Right" Margin="0 0 10 0"/>
+                <TextBox  Width="150" Text="{Binding JY1Num}" VerticalAlignment="Center"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Margin="0 0 0 10">
+                <TextBlock Text="网络继电器2IP:" VerticalAlignment="Center" Width="95" TextAlignment="Right" Margin="0 0 10 0"/>
+                <TextBox  Width="150" Text="{Binding JY2IP}" VerticalAlignment="Center"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Margin="0 0 0 10">
+                <TextBlock Text="网络继电器2端口:" VerticalAlignment="Center" Width="95" TextAlignment="Right" Margin="0 0 10 0"/>
+                <TextBox  Width="150" Text="{Binding JY2Port}" VerticalAlignment="Center"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Margin="0 0 0 10">
+                <TextBlock Text="网络继电器2地址:" VerticalAlignment="Center" Width="95" TextAlignment="Right" Margin="0 0 10 0"/>
+                <TextBox  Width="150" Text="{Binding JY2Addr}" VerticalAlignment="Center"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Margin="0 0 0 10">
+                <TextBlock Text="网络继电器2IO:" VerticalAlignment="Center" Width="95" TextAlignment="Right" Margin="0 0 10 0"/>
+                <TextBox  Width="150" Text="{Binding JY2Num}" VerticalAlignment="Center"/>
+            </StackPanel>
+        </StackPanel>
+        <Button Content="保存" Command="{Binding SaveCommond}" Grid.Column="1" Grid.Row="1" Width="100" FontSize="16" Margin="10"/>
     </Grid>
 </UserControl>
