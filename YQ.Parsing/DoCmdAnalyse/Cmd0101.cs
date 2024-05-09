@@ -7,7 +7,7 @@
     {
         public override AbstractCmd GetResponseCmd(AbstractCmd requestCmd)
         {
-            AbstractCmd rlt = rlt = new ResponseCmd(GetCmdString(requestCmd.cmd, null, 0));
+            AbstractCmd rlt = new ResponseCmd(GetCmdString(requestCmd.cmd, null, 0));
             return rlt;
         }
     }

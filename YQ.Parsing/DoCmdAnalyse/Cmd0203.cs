@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Threading;
 using YQ.Tool;
+using YQ.Tool.JY;
 
 namespace YQ.Parsing.DoCmdAnalyse
 {
 
     /// <summary> 
-    /// 升降源
-    /// 可以指定接线方式、频率、电压、电流，相角、是否输出谐波等
+    /// 关源
     /// </summary>
     public class Cmd0203 : AbstractCmdAnalyse
     {
@@ -17,9 +17,9 @@ namespace YQ.Parsing.DoCmdAnalyse
             Thread powerThread;             
             powerThread = new Thread(() =>
             {
-                StdBuffer.Clear();                
                     PowerHelper.IsPowering = true;
                     PowerHelper.Power_Off(1);//一般情况下的升降源
+                    CloseLight();
                     PowerHelper.IsPowering = false;                    
             });
             powerThread.IsBackground = true;
@@ -27,6 +27,17 @@ namespace YQ.Parsing.DoCmdAnalyse
             Thread.Sleep(1500);
             rlt = new ResponseCmd(requestCmd.cmd, 0, null);//
             return rlt;
+        }
+        private void CloseLight()
+        {
+            //JYHelper jYHelper = new JYHelper();
+            JYHelper jYHelper2 = new JYHelper();
+            if (jYHelper2.JYConnet(ConfigHelper.GetValue("JY2IP"), Convert.ToInt32(ConfigHelper.GetValue("JY2Port"))))
+            {
+                //jYHelper.CloseAllDO(Convert.ToInt32(ConfigHelper.GetValue("JY1Addr")), Convert.ToInt32(ConfigHelper.GetValue("JY1Num")));
+                jYHelper2.CloseAllDO(Convert.ToInt32(ConfigHelper.GetValue("JY2Addr")), Convert.ToInt32(ConfigHelper.GetValue("JY2Num")));
+            }
+            PowerHelper.HangPos?.Clear();
         }
     }
 }

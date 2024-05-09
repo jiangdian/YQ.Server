@@ -26,14 +26,14 @@ namespace YQ.Parsing.DoCmdAnalyse
             try
             {
                 power = PowerHelper.StdMeter_Read();
-                if (power.Result)
-                {
+                //if (power.Result)
+                //{
                     //StdBuffer.Add(power.ToString());
                     rlt = new ResponseCmd(GetCmdString(requestCmd.cmd, 0, power.ToString()));
                     Thread.Sleep(500);//让国网软件多等一会
-                }
-                else
-                {
+                //}
+                //else
+                //{
                     //if (ReadFailTimes >= 2 && LastPower != null)
                     //{
                     //    ReadFailTimes = 1;
@@ -43,11 +43,11 @@ namespace YQ.Parsing.DoCmdAnalyse
                     //else
                     //{
                         //ReadFailTimes++;
-                        LogService.Instance.Error("StdMeter_Read未读到，应答异常结果！");
-                        rlt = new ResponseCmd(GetCmdString(requestCmd.cmd, 1));
+                        //LogService.Instance.Error("StdMeter_Read未读到，应答异常结果！");
+                        //rlt = new ResponseCmd(GetCmdString(requestCmd.cmd, 1));
                     //}
-                    Thread.Sleep(1000);//让国网软件多等一会
-                }
+                    //Thread.Sleep(1000);//让国网软件多等一会
+                //}
             }
             catch (Exception ex)
             {

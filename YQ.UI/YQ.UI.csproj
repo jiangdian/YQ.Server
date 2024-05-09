@@ -17,6 +17,16 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\YQ.Tool\YQ.Tool.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Interop.STComm">
+      <HintPath>..\YQ.Tool\obj\Debug\net6.0-windows\Interop.STComm.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
     <Resource Include="Views\YQ.ico" />
   </ItemGroup>
 

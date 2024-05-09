@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Security.Cryptography.X509Certificates;
 using YQ.FreeSQL.Entity;
 using YQ.Tool;
 
@@ -62,7 +61,7 @@ namespace YQ.Parsing.DoCmdAnalyse
                 //}
                 #endregion
                 var meterID = Convert.ToInt32(requestCmd.data[2]);
-                var comType= Convert.ToInt32(requestCmd.data[0]);//0表示645，1表示376.1，2表示698.45，4表示376.2，5表示Mode
+                var comType= Convert.ToInt32(requestCmd.data[0]);//1表示485-1，2表示485-2，3. 485-3（逆变器），4. 485-4，5. 485-5（逆变器），6. 485-6，7蓝牙，8. STA，9. CCO，其他值备用。
                 var comPara = requestCmd.data[3];
                 var comPro= requestCmd.data[1];
                 ComSet value = new ComSet();

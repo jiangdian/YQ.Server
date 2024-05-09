@@ -1,14 +1,8 @@
 ﻿using Prism.DryIoc;
 using Prism.Ioc;
 using Prism.Modularity;
-using Prism.Regions;
 using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
 using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
 using System.Windows;
 using YQ.Tool;
 using YQ.Tool.SingletonWindow;
@@ -49,7 +43,6 @@ namespace YQ.Server
         }
         protected override void ConfigureModuleCatalog(IModuleCatalog moduleCatalog)
         {
-            //moduleCatalog.AddModule<MainModule.MainModule>();
             moduleCatalog.AddModule<FunctionModule.FunctionModule>();
         }
 

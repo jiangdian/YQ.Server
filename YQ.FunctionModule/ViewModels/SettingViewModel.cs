@@ -16,6 +16,12 @@ namespace YQ.FunctionModule.ViewModels
             get { return _ComParamter; }
             set { SetProperty(ref _ComParamter, value); }
         }
+        private string _GHCom;
+        public string GHCom
+        {
+            get { return _GHCom; }
+            set { SetProperty(ref _GHCom, value); }
+        }
         private string _PowerStyle;
         public string PowerStyle
         {
@@ -107,6 +113,7 @@ namespace YQ.FunctionModule.ViewModels
         {
             ConfigHelper.SetValue("MeterNum", MeterNum);
             ConfigHelper.SetValue("ComParamter", ComParamter);
+            ConfigHelper.SetValue("GHCom", GHCom);
             ConfigHelper.SetValue("PowerStyle", PowerStyle);
             ConfigHelper.SetValue("defaultschemeid", defaultschemeid);
             ConfigHelper.SetValue("edtFreq", edtFreq);
@@ -126,6 +133,7 @@ namespace YQ.FunctionModule.ViewModels
         {
             MeterNum=ConfigHelper.GetValue("MeterNum");
             ComParamter = ConfigHelper.GetValue("ComParamter");
+            GHCom = ConfigHelper.GetValue("GHCom");
             PowerStyle = ConfigHelper.GetValue("PowerStyle");
             defaultschemeid = ConfigHelper.GetValue("defaultschemeid");
             edtFreq = ConfigHelper.GetValue("edtFreq");

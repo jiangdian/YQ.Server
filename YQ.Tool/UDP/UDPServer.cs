@@ -54,7 +54,7 @@ namespace YQ.Tool.UDP
             try
             {
                 IPEndPoint ipLocalEndPoint;
-                ipLocalEndPoint = new IPEndPoint(IPAddress.Any, 20000);
+                ipLocalEndPoint = new IPEndPoint(IPAddress.Any, 10001);
 
                 udpserver.NetWork = new UdpClient(ipLocalEndPoint);
                 udpserver.ipLocalEndPoint = ipLocalEndPoint;

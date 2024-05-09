@@ -6,7 +6,12 @@
     <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
     <PlatformTarget>x86</PlatformTarget>
+    <ApplicationIcon>YQ.ico</ApplicationIcon>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="YQ.ico" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Prism.DryIoc" Version="8.1.97" />

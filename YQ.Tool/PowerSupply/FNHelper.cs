@@ -179,6 +179,8 @@ namespace YQ.Tool.PowerSupply
                         CommCtr.FDevComm.GetLastErr(out string ws);
                         MessageBox.Show(ws);
                     }
+                    CommCtr.FDevComm.SetTestMode(TTestMode.tmStartPC);// 设置PC控制模式   
+                    CommCtr.FDevComm.SetMaxPosition(Convert.ToInt32(ConfigHelper.GetValue("MeterNum")), 0); //设置表位总数
                 }
                 catch (Exception ex)
                 {
@@ -207,7 +209,7 @@ namespace YQ.Tool.PowerSupply
             try
             {
                 CommCtr.FDevComm.SwitchU(XLABC.x_L, XOnOff.x_Off);
-                Thread.Sleep(3000);
+                Thread.Sleep(1000);
                 CommCtr.FDevComm.SetUValue(power.Ua, false);  //设置电压值为220V
                 CommCtr.FDevComm.SwitchU(XLABC.x_L, XOnOff.x_On);
 
@@ -251,17 +253,17 @@ namespace YQ.Tool.PowerSupply
             bool result=CommCtr.FDevComm.GetU(out U1, out U2, out U3, false);
             LogService.Instance.Info($"HSHelper.StdMeter_Read:{U1},{U2},{U3}");
             PowerParam power = new PowerParam(); ;
-            if (result)//返回true，但没有结果值
-            {
+            //if (result)//返回true，但没有结果值
+            //{
                 power.Ua = U1;
                 power.Ub = U2;
                 power.Uc = U3;
                 power.Result = true;
-            }
-            else
-            {
-                power.Result = false;
-            }
+            //}
+            //else
+            //{
+            //    power.Result = false;
+            //}
             double I1, I2, I3;//电流
             CommCtr.FDevComm.GetI(out I1, out I2, out I3, false);
             power.Ia = I1;

@@ -42,7 +42,7 @@ namespace YQ.Tool
         /// </summary>
         public static bool IsPowering = false;
 
-        public static List<int> HangPos;
+        public static List<int> HangPos=new List<int>();
 
         public static Dictionary<int, ClockHelper> dicTimes = new Dictionary<int, ClockHelper>()
         {
@@ -183,9 +183,9 @@ namespace YQ.Tool
         {
             try
             {
-                CommCtr.FDevComm.SetTestMode(TTestMode.tmStartPC);// 设置PC控制模式   
+                //CommCtr.FDevComm.SetTestMode(TTestMode.tmStartPC);// 设置PC控制模式   
                
-                CommCtr.FDevComm.ClearMtParams();
+                //CommCtr.FDevComm.ClearMtParams();
                 CommCtr.FDevComm.SetUb(Convert.ToDouble(ConfigHelper.GetValue("MeterUb")));//设定额定电压
                 //CommCtr.FDevComm.SetIb_Imax(Convert.ToDouble(tbIb.Text), Convert.ToDouble(tbImax.Text));
                 //CommCtr.FDevComm.ConnectType = GetConnectType(0, 0); //接线方式设定

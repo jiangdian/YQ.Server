@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace YQ.Tool.JY
 {
@@ -71,12 +70,12 @@ namespace YQ.Tool.JY
             return src;
         }
 
-        public static byte[] ReadAIInfo(int addr, int regstart, int regnum)
+        public static byte[] ReadAIInfo(int addr, int regstart,int regnum)
         {
             byte[] src = new byte[8];
             src[0] = (byte)addr;
             src[1] = 0x04;
-            src[2] = (byte)(regstart >> 8);
+            src[2] = (byte)(regstart>>8);
             src[3] = (byte)(regstart & 0xff);
             src[4] = (byte)(regnum >> 8);
             src[5] = (byte)(regnum & 0xff);
@@ -101,9 +100,9 @@ namespace YQ.Tool.JY
             return src;
         }
 
-        public static byte[] WriteAOInfo(int addr, int regstart, int regnum, short[] ao)
+        public static byte[] WriteAOInfo(int addr, int regstart, int regnum,short[] ao)
         {
-            int allnum = 6 + 1 + ao.Length * 2 + 2;
+            int allnum = 6 + 1 + ao.Length*2+2;
             byte[] src = new byte[allnum];
             src[0] = (byte)addr;
             src[1] = 0x10;
@@ -117,9 +116,9 @@ namespace YQ.Tool.JY
                 src[7 + 2 * i + 0] = (byte)(ao[i] >> 8);
                 src[7 + 2 * i + 1] = (byte)(ao[i] & 0xff);
             }
-            ushort crc = CMBRTU.CalculateCrc(src, allnum - 2);
-            src[allnum - 2] = (byte)(crc & 0xff);
-            src[allnum - 1] = (byte)(crc >> 8);
+            ushort crc = CMBRTU.CalculateCrc(src, allnum-2);
+            src[allnum-2] = (byte)(crc & 0xff);
+            src[allnum-1] = (byte)(crc >> 8);
             return src;
         }
     }

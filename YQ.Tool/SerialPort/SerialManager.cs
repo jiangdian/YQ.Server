@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO.Ports;
 using System.Linq;
+using System.Threading;
 
 namespace YQ.Tool
 {
@@ -141,34 +142,58 @@ namespace YQ.Tool
             {
                 return null;
             }
-            SerialPort port;
+            
             lock (lockobj)
             {
+                SerialPort port;
                 portName = portName.ToUpper();
                 if (this.PortList.Keys.Contains(portName))
                 {
                     port = this.PortList[portName];
+                    if (port.BaudRate != baudRate || port.Parity != parity || port.DataBits != dataBits)
+                    {
+                        ClosePort(portName);
+                        port = OpenOnePort(portName, baudRate, parity, dataBits, stopBits);
+                    }
                 }
                 else
-                {
-                    port = new SerialPort(portName, baudRate, parity, dataBits, stopBits);
-                    port.RtsEnable = false;
-                    try
-                    {
-                        port.Open();
-                    }
-                    catch (Exception e)
-                    {
-                        LogService.Instance.Error("创建串口失败！");
-                        throw new Exception();
-                        return null;
-                    }
-                    this.PortList.Add(portName, port);
+                {                   
+                    //port = new SerialPort(portName, baudRate, parity, dataBits, stopBits);
+                    //port.RtsEnable = false;
+                    //try
+                    //{
+                    //    port.Open();
+                    //}
+                    //catch (Exception e)
+                    //{
+                    //    LogService.Instance.Error("创建串口失败！");
+                    //    throw new Exception();
+                    //    return null;
+                    //}
+                    //this.PortList.Add(portName, port);
+                    port = OpenOnePort(portName, baudRate, parity, dataBits, stopBits);
                 }
+                return port;
             }
-            return port;
+            
         }
-
+        SerialPort OpenOnePort(string portName, int baudRate, Parity parity, int dataBits, StopBits stopBits)
+        {
+            SerialPort port = new SerialPort(portName, baudRate, parity, dataBits, stopBits);
+            port.ReadTimeout = 500;
+            port.WriteTimeout = 500;
+            try
+            {
+                port.Open();
+                portList.Add(portName, port);
+                return port;
+            }
+            catch (Exception e)
+            {
+                LogService.Instance.Error($"打开{portName}失败", e);
+                return null;
+            }
+        }
 
         /// <summary>
         /// 获取串口
@@ -283,6 +308,224 @@ namespace YQ.Tool
             {
                 return null;
             }
+        }
+
+        /// <summary>
+        /// 发送命令，并获取应答
+        /// </summary>
+        /// <param name="portName">串口名，例如：COM1</param>
+        /// <param name="sendData">发送数据</param>
+        /// <param name="rcvSleep">每次接收前等待时间</param>
+        /// <returns></returns>
+        public List<byte> SendData(string portName, List<byte> sendData, int rcvSleep)
+        {
+            List<byte> ReceiveData = new List<byte>();
+            SerialPort port = this.GetPort(portName);
+            Thread.Sleep(1);
+            if (port == null)
+            {
+                return null;
+            }
+            lock (port)
+            {
+                port.DiscardInBuffer();
+                port.DiscardOutBuffer();
+                port.Write(sendData.ToArray(), 0, sendData.Count);
+                {
+                    string str = "";
+                    foreach (byte b in sendData.ToArray())
+                    {
+                        str += b.ToString("X2");
+                    }
+                    LogService.Instance.Info(str);
+                }
+                
+                //Thread.Sleep(rcvSleep);
+                //if (port.BytesToRead > 0)
+                //{
+                //    byte[] buffer = new byte[port.BytesToRead];
+                //    port.Read(buffer, 0, buffer.Length);
+                //    ReceiveData.AddRange(buffer);
+                //    return ReceiveData;
+                //}
+                DateTime dt = DateTime.Now;
+                Thread.Sleep(100);
+                while (DateTime.Now < dt.AddMilliseconds(rcvSleep))
+                {
+                    if (port.BytesToRead > 0)
+                    {
+                        byte[] buffer = new byte[port.BytesToRead];
+                        port.Read(buffer, 0, buffer.Length);
+                        string str = "";
+                        foreach(byte b in buffer){
+                            str += b.ToString("X2");
+                        }
+                        //LogService.Instance.Info(str);
+                        ReceiveData.AddRange(buffer);
+                        var Result = MeterInfoDataPack.Instance.TryPackData(ReceiveData.ToArray());
+                        if (Result != DataPackMetaData.Null)
+                        {
+                            return ReceiveData;
+                        }
+                        Thread.Sleep(100);
+                    }
+                }
+                return null;
+            }
+        }
+        public List<byte> SendData2(string portName, List<byte> sendData, int rcvSleep)
+        {
+            List<byte> ReceiveData = new List<byte>();
+            SerialPort port = this.GetPort(portName);
+            Thread.Sleep(1);
+            if (port == null)
+            {
+                return null;
+            }
+            lock (port)
+            {
+                port.DiscardInBuffer();
+                port.DiscardOutBuffer();
+                port.Write(sendData.ToArray(), 0, sendData.Count);
+                {
+                    string str = "";
+                    foreach (byte b in sendData.ToArray())
+                    {
+                        str += b.ToString("X2");
+                    }
+                    LogService.Instance.Info(str);
+                }
+
+                DateTime dt = DateTime.Now;
+                Thread.Sleep(100);
+                while (DateTime.Now < dt.AddMilliseconds(rcvSleep))
+                {
+                    if (port.BytesToRead > 0)
+                    {
+                        byte[] buffer = new byte[port.BytesToRead];
+                        port.Read(buffer, 0, buffer.Length);
+
+                        //LogService.Instance.Info(str);
+                        ReceiveData.AddRange(buffer);
+                        return ReceiveData;                     
+                    }
+                }
+                return null;
+            }
+        }
+        public List<byte> SendData3(string portName, List<byte> sendData, int rcvSleep)
+        {
+            List<byte> ReceiveData = new List<byte>();
+            SerialPort port = this.GetPort(portName);
+            Thread.Sleep(1);
+            if (port == null)
+            {
+                return null;
+            }
+            lock (port)
+            {
+                port.DiscardInBuffer();
+                port.DiscardOutBuffer();
+                port.Write(sendData.ToArray(), 0, sendData.Count);
+                {
+                    string str = "";
+                    foreach (byte b in sendData.ToArray())
+                    {
+                        str += b.ToString("X2");
+                    }
+                    LogService.Instance.Info(str);
+                }
+
+                DateTime dt = DateTime.Now;
+                Thread.Sleep(100);
+                while (DateTime.Now < dt.AddMilliseconds(rcvSleep+ rcvSleep))
+                {
+                    if (port.BytesToRead > 0)
+                    {
+                        byte[] buffer = new byte[port.BytesToRead];
+                        port.Read(buffer, 0, buffer.Length);
+
+                        ReceiveData.AddRange(buffer);
+                        var Result = MeterInfoDataPack.Instance.TryPackData(ReceiveData.ToArray());
+                        if (Result != DataPackMetaData.Null)
+                        {
+                            return ReceiveData;
+                        }
+                    }
+                    Thread.Sleep(100);
+                }
+                return null;
+            }
+        }
+        public List<byte> SendData1(string portName, List<byte> sendData, int rcvSleep)
+        {
+            List<byte> ReceiveData = new List<byte>();
+            SerialPort port = this.GetPort(portName);
+            if (port == null)
+            {
+                return null;
+            }
+            //lock (port)
+            //{
+                //port.DiscardInBuffer();
+                //port.DiscardOutBuffer();
+                port.Write(sendData.ToArray(), 0, sendData.Count);
+                {
+                    string str = "";
+                    foreach (byte b in sendData.ToArray())
+                    {
+                        str += b.ToString("X2");
+                    }
+                    LogService.Instance.Info(port.PortName+" Send:"+str);
+                }
+                byte[] buffer = new byte[] { 1, 2 };
+                ReceiveData.AddRange(buffer);
+                return ReceiveData;
+            //}
+        }
+        /// <summary>
+        /// 发送命令，并获取接收信息，
+        /// </summary>
+        /// <param name="serialPort"></param>
+        /// <param name="SendData">发送数据</param>
+        /// <param name="ReceiveData">接收信息</param> 
+        /// <param name="receiveCount">接收信息尝试次数：每50毫秒接收一次信息</param> 
+        /// <returns>接收数据的长度，串口未打开返回-1</returns>
+        public  List<byte> SendByte(string portName, List<byte> SendData, int receiveCount)
+        {
+            SerialPort serialPort = this.GetPort(portName);
+            List<byte> ReceiveData = new List<byte>();
+            if (!serialPort.IsOpen)
+            {
+                return ReceiveData;
+            }
+            try
+            {
+                serialPort.DiscardInBuffer();//清空接收缓冲区
+                serialPort.DiscardOutBuffer();
+                serialPort.Write(SendData.ToArray(), 0, SendData.Count);
+                while (receiveCount > 0)
+                {
+                    Thread.Sleep(50);
+                    if (serialPort.BytesToRead > 0)
+                    {
+                        byte[] buffer = new byte[serialPort.BytesToRead];
+                        serialPort.Read(buffer, 0, buffer.Length);
+                        //serialPort.DiscardInBuffer();//清空接收缓冲区
+                        ReceiveData.AddRange(buffer);
+                    }
+                    else
+                    {
+                        continue;
+                    }
+                    receiveCount--;
+                }
+            }
+            catch (Exception ex)
+            {
+                LogService.Instance.Error($"发送数据失败!{ex.Message}");
+            }
+            return ReceiveData;
         }
 
         ~SerialManager()

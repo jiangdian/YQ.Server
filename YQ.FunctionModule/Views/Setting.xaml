@@ -58,6 +58,10 @@
                 <TextBlock Text="频率(HZ):" VerticalAlignment="Center" Width="80" TextAlignment="Right" Margin="0 0 10 0"/>
                 <TextBox  Width="150" Text="{Binding MeterFreq}" VerticalAlignment="Center"/>
             </StackPanel>
+            <StackPanel Orientation="Horizontal" Margin="0 0 0 10">
+                <TextBlock Text="功耗板COM:" VerticalAlignment="Center" Width="80" TextAlignment="Right" Margin="0 0 10 0"/>
+                <TextBox  Width="150" Text="{Binding GHCom}" VerticalAlignment="Center"/>
+            </StackPanel>
         </StackPanel>
         <StackPanel Grid.Column="1" Margin="10">
             <StackPanel Orientation="Horizontal" Margin="0 0 0 10">
@@ -92,7 +96,8 @@
                 <TextBlock Text="网络继电器2IO:" VerticalAlignment="Center" Width="95" TextAlignment="Right" Margin="0 0 10 0"/>
                 <TextBox  Width="150" Text="{Binding JY2Num}" VerticalAlignment="Center"/>
             </StackPanel>
+            
         </StackPanel>
-        <Button Content="保存" Command="{Binding SaveCommond}" Grid.Column="1" Grid.Row="1" Width="100" FontSize="16" Margin="10"/>
+        <Button Content="保存" Command="{Binding SaveCommand}" Grid.Column="1" Grid.Row="1" Width="100" FontSize="16" Margin="10"/>
     </Grid>
 </UserControl>

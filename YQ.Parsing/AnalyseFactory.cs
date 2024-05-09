@@ -61,7 +61,10 @@ namespace SECS.Parsing
             builder.RegisterType<Cmd0411>().Named<ICmdAnalyse>("Cmd0411"); 
             builder.RegisterType<Cmd0412>().Named<ICmdAnalyse>("Cmd0412"); 
             builder.RegisterType<Cmd0413>().Named<ICmdAnalyse>("Cmd0413"); 
+            builder.RegisterType<Cmd0506>().Named<ICmdAnalyse>("Cmd0506"); 
             builder.RegisterType<Cmd0417>().Named<ICmdAnalyse>("Cmd0417"); 
+            builder.RegisterType<Cmd1007>().Named<ICmdAnalyse>("Cmd1007"); 
+            builder.RegisterType<Cmd1001>().Named<ICmdAnalyse>("Cmd1001"); 
            
             container = builder.Build();
         }

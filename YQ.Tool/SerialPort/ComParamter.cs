@@ -90,5 +90,10 @@ namespace YQ.Tool
         /// 接收次数
         /// </summary>
         public int RcvCount { set; get; } = 3;
+
+        /// <summary>
+        /// 接收数据前等待ms
+        /// </summary>
+        public int RcvSleep { set; get; } = 6000;
     }
 }

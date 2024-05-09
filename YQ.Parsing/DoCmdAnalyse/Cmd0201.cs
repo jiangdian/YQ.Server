@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using YQ.Tool;
+using YQ.Tool.JY;
 
 namespace YQ.Parsing.DoCmdAnalyse
 {
@@ -38,24 +39,59 @@ namespace YQ.Parsing.DoCmdAnalyse
             Thread powerThread;
             powerThread = new Thread(() =>
             {
-                StdBuffer.Clear();
+                //StdBuffer.Clear();
                 PowerHelper.IsPowering = true;
+                if (PowerHelper.HangPos?.Count==0)
+                {
+                    LightOn();
+                }
+                PowerHelper.SetParams();
                 PowerHelper.Power_On(power);//一般情况下的升降源
                 PowerHelper.IsPowering = false;
             });
             powerThread.IsBackground = true;
             powerThread.Start();
-            Thread.Sleep(1500);
-
-            //PowerI = power.Ia;
-            //PowerHelper.PowerI_flag = power.Ia;//记录升源电流
-            //PowerPhase = power.Phase;
-            //PowerHelper.Phase = power.Phase;    //记录接线方式，以供三相三线读数时用         
-            rlt = new ResponseCmd(requestCmd.cmd,  0, null);
-
-            //LastPower = power;
-
+            Thread.Sleep(11000);
+            //PowerParam power2 = new PowerParam();
+            //DateTime dt=DateTime.Now;
+            //while (power2.Ua < power.Ua - 10&&dt.AddSeconds(20)>DateTime.Now)
+            //{
+            //    power2 = PowerHelper.StdMeter_Read();
+            //    Thread.Sleep(1000);
+            //}
+             rlt = new ResponseCmd(requestCmd.cmd,  0, null);
             return rlt;
+        }
+
+        private void LightOn()
+        {
+            JYHelper jYHelper = new JYHelper();
+            JYHelper jYHelper2 = new JYHelper();
+            if (jYHelper.JYConnet(ConfigHelper.GetValue("JY1IP"), Convert.ToInt32(ConfigHelper.GetValue("JY1Port"))))
+            {
+                var rst = jYHelper.ReadDO(Convert.ToInt32(ConfigHelper.GetValue("JY1Addr")), Convert.ToInt32(ConfigHelper.GetValue("JY1Num")));
+                //PowerHelper.InitMeterParams();
+                jYHelper2.JYConnet(ConfigHelper.GetValue("JY2IP"), Convert.ToInt32(ConfigHelper.GetValue("JY2Port")));
+                PowerHelper.HangPos?.Clear();
+                for (int j = 0; j < rst.Length & j < 4; j++)
+                {
+                    byte status = rst[j];
+                    for (int i = 0; i < 8; i++)
+                    {
+                        if ((status & (1 << i)) == 0x00)//无表
+                        {
+                            PowerHelper.NoMeter(j * 8 + i, false);
+                        }
+                        else
+                        {
+                            PowerHelper.NoMeter(j * 8 + i, true);
+                            jYHelper2.OpenDO(Convert.ToInt32(ConfigHelper.GetValue("JY2Addr")), j * 8 + i);
+                            PowerHelper.HangPos.Add(j * 8 + i + 1);
+                        }
+                    }
+                }
+                //PowerHelper.SetParams();
+            }
         }
     }
 }

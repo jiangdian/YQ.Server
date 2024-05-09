@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO.Ports;
+using System.Threading;
 
 namespace YQ.Tool
 {
@@ -22,7 +23,7 @@ namespace YQ.Tool
                 return null;
             }
             SerialPort port = new SerialPort(comParmater.PortName, comParmater.BaudRate, comParmater.Parity, comParmater.DataBits, comParmater.StopBits);
-            port.RtsEnable = false;
+            //port.RtsEnable = false;
             try
             {
                 port.Open();
@@ -33,6 +34,20 @@ namespace YQ.Tool
                 return null;
             }
             return port;
+        }
+        /// <summary>
+        /// 创建并打开串口
+        /// </summary>
+        /// <returns></returns>
+        public static bool OpenPort(ComParamter comParmater)
+        {
+            SerialPort port = SerialManager.Instance.CreateAndOpenPort(comParmater);
+            return port != null;
+        }
+
+        public static void ClosePort(string portName)
+        {
+            SerialManager.Instance.ClosePort(portName);
         }
         public static void ClosePort(SerialPort port)
         {
@@ -51,16 +66,59 @@ namespace YQ.Tool
         /// <returns></returns>
         public static void SendData(ComParamter comParmater)
         {
-            SerialPort port = CreateAndOpenPort(comParmater);
-            if (port == null)
-            {
-                comParmater.RecData = null;
-            }
-            else
-            {
-                comParmater.RecData = SendByte(port, comParmater.SendData, comParmater.RcvCount);
-            }
-            ClosePort(port);
+            //SerialPort port = CreateAndOpenPort(comParmater);
+            //if (port == null)
+            //{
+            //    comParmater.RecData = null;
+            //}
+            //else
+            //{
+            //comParmater.RecData = SerialManager.Instance.SendByte(comParmater.PortName, comParmater.SendData, comParmater.RcvCount);
+            comParmater.RecData = SerialManager.Instance.SendData(comParmater.PortName, comParmater.SendData, comParmater.RcvSleep);
+            //}
+            //ClosePort(port);
+        }
+        public static void SendData1(ComParamter comParmater)
+        {
+            //SerialPort port = CreateAndOpenPort(comParmater);
+            //if (port == null)
+            //{
+            //    comParmater.RecData = null;
+            //}
+            //else
+            //{
+            //comParmater.RecData = SerialManager.Instance.SendByte(comParmater.PortName, comParmater.SendData, comParmater.RcvCount);
+            comParmater.RecData = SerialManager.Instance.SendData2(comParmater.PortName, comParmater.SendData, comParmater.RcvSleep);
+            //}
+            //ClosePort(port);
+        }
+        public static void SendData2(ComParamter comParmater)
+        {
+            //SerialPort port = CreateAndOpenPort(comParmater);
+            //if (port == null)
+            //{
+            //    comParmater.RecData = null;
+            //}
+            //else
+            //{
+            //comParmater.RecData = SerialManager.Instance.SendByte(comParmater.PortName, comParmater.SendData, comParmater.RcvCount);
+            comParmater.RecData = SerialManager.Instance.SendData3(comParmater.PortName, comParmater.SendData, comParmater.RcvSleep);
+            //}
+            //ClosePort(port);
+        }
+        public static void SendByte(ComParamter comParmater)
+        {
+            //SerialPort port = CreateAndOpenPort(comParmater);
+            //if (port == null)
+            //{
+            //    comParmater.RecData = null;
+            //}
+            //else
+            //{
+            comParmater.RecData = SerialManager.Instance.SendData1(comParmater.PortName, comParmater.SendData, comParmater.RcvSleep);
+            //comParmater.RecData = SerialManager.Instance.SendData(comParmater.PortName, comParmater.SendData, comParmater.RcvSleep);
+            //}
+            //ClosePort(port);
         }
         /// <summary>
         /// 发送命令，并获取接收信息，
@@ -104,6 +162,37 @@ namespace YQ.Tool
                 LogService.Instance.Error($"发送数据失败!{ex.Message}");
             }
             return ReceiveData;
+        }
+
+        /// <summary>
+        /// 发送命令，并获取应答
+        /// </summary>
+        /// <param name="portName">串口名，例如：COM1</param>
+        /// <param name="sendData">发送数据</param>
+        /// <param name="rcvSleep">每次接收前等待时间</param>
+        /// <returns></returns>
+        public static List<byte> SendData(SerialPort port, List<byte> sendData, int rcvSleep)
+        {
+            List<byte> ReceiveData = new List<byte>();
+            if (!port.IsOpen)
+            {
+                return null;
+            }
+            lock (port)
+            {
+                port.DiscardInBuffer();
+                port.DiscardOutBuffer();
+                port.Write(sendData.ToArray(), 0, sendData.Count);
+                Thread.Sleep(rcvSleep);
+                if (port.BytesToRead > 0)
+                {
+                    byte[] buffer = new byte[port.BytesToRead];
+                    port.Read(buffer, 0, buffer.Length);
+                    ReceiveData.AddRange(buffer);
+                    return ReceiveData;
+                }
+                return null;
+            }
         }
     }
 

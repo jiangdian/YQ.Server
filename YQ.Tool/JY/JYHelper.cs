@@ -16,6 +16,8 @@ namespace YQ.Tool.JY
         private NetworkStream ns1;
         private NetworkStream ns2;
         private int sAddr;
+        private int sPort;
+        private string sIP;
         /// <summary>
         /// 连接
         /// </summary>
@@ -26,31 +28,89 @@ namespace YQ.Tool.JY
         {
             try
             {
-                if (tclient != null)
-                {
-                    tclient.Close();
-                    tclient = new TcpClient();
-                }
-                if (!tclient.Connected)
+                if (tclient.Connected == false)
                 {
                     tclient.Connect(IP, port);
+                    ns1 = tclient.GetStream();
+                    ns2 = tclient.GetStream();
+                    sIP = IP;
+                    sPort = port;
+                    
                 }
                 return true;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 tclient.Close();
                 tclient = new TcpClient();
                 return false;
-            }         
+            }
+
+        }
+        DateTime conntime = DateTime.Now;
+        private void connectClient()
+        {
+            try
+            {
+                if (tclient == null)
+                {
+                    conntime = DateTime.Now;
+                    tclient = new TcpClient();
+                    tclient.BeginConnect(sIP, sPort, new AsyncCallback(ConnectCallback), tclient);
+                    //因为要访问ui资源，所以需要使用invoke方式同步ui。
+
+                }
+                else if (tclient.Connected==false)
+                {
+                    tclient.Connect(sIP, sPort);
+                    ns1 = tclient.GetStream();
+                    ns2 = tclient.GetStream();
+                }
+            }
+            catch (Exception ex)
+            {
+                tclient = null;
+            }
+        }
+        private void ConnectCallback(IAsyncResult ar)
+        {
+            try
+            {
+                //tclient = (TcpClient)ar.AsyncState;
+                if (tclient.Connected == true)
+                {
+                    ns1 = tclient.GetStream();
+                    ns2 = tclient.GetStream();
+
+                }
+                else
+                    connectClient();
+            }
+            catch (Exception)
+            {
+                connectClient();
+            }
         }
         public void OpenDO(int addr, int io)
         {
             byte[] info = CModbusDll.WriteDO(addr, io, true);
+            sendinfo(info);
         }
+        public void OpenAllDO(int addr, int io)
+        {
+            var info = CModbusDll.WriteAllDO(addr, io, true);
+            sendinfo(info);
+        }
+
         public void CloseAllDO(int addr,int io)
         {
-            CModbusDll.WriteAllDO(addr, io, false);
+            var info=CModbusDll.WriteAllDO(addr, io, false);
+            sendinfo(info);
+        }
+        public void CloseDO(int addr, int io)
+        {
+            byte[] info = CModbusDll.WriteDO(addr, io, false);
+            sendinfo(info);
         }
         /// <summary>
         /// 读取DO状态
@@ -66,43 +126,122 @@ namespace YQ.Tool.JY
         }
         private byte[] sendinfo(byte[] info)
         {
-            if (tclient.Connected == false) return null;
-            tclient.SendTimeout = 1000;
+            if (tclient == null)
+            {
+                connectClient();
+                return null;
+            }
+
+            if (tclient.Connected == false)
+            {
+                if (conntime.AddMilliseconds(5 * Convert.ToInt32(100)) < DateTime.Now)
+                {
+                    tclient.Close();
+                    tclient = null;
+                }
+                return null;
+            }
+            tclient.SendTimeout = 300;
+            tclient.ReceiveTimeout = 300;
             try
             {
-                ns1.Write(info, 0, info.Length);
-                LogService.Instance.Info("发送:"+ info);
 
-                byte[] data = new byte[2048];
-                ns2.ReadTimeout = 2000;
-                int len = ns2.Read(data, 0, 2048);
-                LogService.Instance.Info("接收:" + data);
+                try
+                {
+                    if (ns1==null)
+                    {
+                        ns1 = tclient.GetStream();
+                       
+                    }
+                    ns1.WriteTimeout = 3 + info.Length;
+                    ns1.Write(info, 0, info.Length);
+                }
+                catch (Exception)
+                {
+                    tclient = null;
+                    return null;
+                }
 
-                return analysisRcv(data, len);
+
+                byte[] data = RcvData();
+                if (data == null) return null;
+                return analysisRcv(data, data.Length);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                tclient.Close();
-                tclient = new TcpClient();
+
             }
             return null;
+        }
+        private byte[] RcvData()
+        {
+            byte[] info = new byte[2048 + 10];
+            int len = 0;
+            int retrycnt = 0;
+            int timeout = 1000;
+
+            Thread.Sleep(10);
+            while (timeout > 0)
+            {
+                timeout -= 20;
+                ns2.ReadTimeout = 5;
+                try
+                {
+                    byte[] rcv = new byte[2048 + 10];
+                    if (ns2==null)
+                    {
+                        ns2 = tclient.GetStream();
+                    }
+                    int rdlen = ns2.Read(rcv, 0, 2048);
+                    for (int i = 0; i < rdlen; i++)
+                    {
+                        if (len < 2048) info[len++] = rcv[i];
+                    }
+
+                    if (rdlen > 0) retrycnt = 0;
+                }
+                catch (Exception)
+                {
+
+                }
+                if (len > 0)
+                {
+                    retrycnt++;
+                    if (retrycnt > 3) timeout = 0;
+                }
+            }
+            if (len < 5) return null;
+            byte[] rst = new byte[len];
+            for (int i = 0; i < len; i++)
+                rst[i] = info[i];
+            return rst;
         }
         private byte[] analysisRcv(byte[] src, int len)
         {
             if (len < 6) return null;
-            if (src[0] != Convert.ToInt16(sAddr)) return null;
+
 
             switch (src[1])
             {
                 case 0x01:
-                    if (CMBRTU.CalculateCrc(src, 6) == 0x00)
+                    if (CMBRTU.CalculateCrc(src, src[2] + 5) == 0x00)
                     {
-                        byte[] dst = new byte[1];
-                        dst[0] = src[3];
+                        byte[] dst = new byte[src[2]];
+                        for (int i = 0; i < src[2]; i++)
+                            dst[i] = src[3 + i];
                         return dst;
                     }
                     break;
                 case 0x02:
+                    if (CMBRTU.CalculateCrc(src, src[2] + 5) == 0x00)
+                    {
+                        byte[] dst = new byte[src[2]];
+                        for (int i = 0; i < src[2]; i++)
+                            dst[i] = src[3 + i];
+                        return dst;
+                    }
+                    break;
+                case 0x04:
                     if (CMBRTU.CalculateCrc(src, src[2] + 5) == 0x00)
                     {
                         byte[] dst = new byte[src[2]];
@@ -124,6 +263,28 @@ namespace YQ.Tool.JY
                     {
                         byte[] dst = new byte[1];
                         dst[0] = 1;
+                        return dst;
+                    }
+                    break;
+                case 0x06:
+                    if (CMBRTU.CalculateCrc(src, 8) == 0x00)
+                    {
+                        byte[] dst = new byte[4];
+                        dst[0] = src[2];
+                        dst[1] = src[3];
+                        dst[2] = src[4];
+                        dst[3] = src[5];
+                        return dst;
+                    }
+                    break;
+                case 0x10:
+                    if (CMBRTU.CalculateCrc(src, 8) == 0x00)
+                    {
+                        byte[] dst = new byte[4];
+                        dst[0] = src[2];
+                        dst[1] = src[3];
+                        dst[2] = src[4];
+                        dst[3] = src[5];
                         return dst;
                     }
                     break;

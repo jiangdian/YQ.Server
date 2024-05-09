@@ -13,10 +13,6 @@ namespace YQ.Parsing.DoCmdAnalyse
         {
             ComParamter com = new ComParamter(requestCmd.data[1]);
             SerialManager.Instance.CreateAndOpenPort(com.PortName, com.BaudRate, com.Parity, com.DataBits, com.StopBits);
-            //freeSql.Update<ComSet>()
-            //    .Set(a => a.ComPara == requestCmd.data[1])
-            //    .Where(a => a.ComID ==Convert.ToInt32(requestCmd.data[0]))
-            //    .ExecuteAffrows();
             AbstractCmd rlt = new ResponseCmd(GetCmdString(requestCmd.cmd, null, 0));
             return rlt;           
         }

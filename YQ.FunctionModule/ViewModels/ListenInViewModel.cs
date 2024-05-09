@@ -1,8 +1,17 @@
 ﻿using SECS.Parsing;
+using System;
+using System.Collections.Concurrent;
+using System.Diagnostics.Metrics;
+using System.IO.Ports;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using YQ.FreeSQL.Entity;
+using YQ.FunctionModule.Bll;
 using YQ.Parsing;
+using YQ.Tool;
+using YQ.Tool.JY;
 using YQ.Tool.UDP;
 
 namespace YQ.FunctionModule.ViewModels
@@ -14,14 +23,19 @@ namespace YQ.FunctionModule.ViewModels
         private readonly IEventAggregator eventAggregator;
         private static readonly object oRcvLock = new object();
         private static readonly object oSendLock = new object();
+        private static readonly object oListionLock = new object();
+        private bool IsC = false;
         private ILogService log;
         private Socket client;
         private IPEndPoint clientip;
         private IPEndPoint serverip;
+        private ListenInBll listenInBll;
+        public IPEndPoint Remote;
         private CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
         public static Queue<ReceiveData> queue = new Queue<ReceiveData>();
         private int defaultschemeid;//判断重复列队 -1运行重复
         private UDPServer UDPSrv { get; set; }
+        private List<ComSet> comList= new List<ComSet>();   
         /// <summary>
         /// combox下拉框内容
         /// </summary>
@@ -103,28 +117,30 @@ namespace YQ.FunctionModule.ViewModels
             {
                 return;
             }
-            var com = new ComParamter(ConfigHelper.GetValue("ComParamter"));
-            SerialManager.Instance.CreateAndOpenPort(com);
-            var PowerCom=com.PortName.Substring(3);
-            PowerHelper.SetDev_Port(Convert.ToByte(PowerCom));
-            PowerHelper.InitFNParams();
             UDPSrv = new UDPServer();
             UDPSrv.DataReceived += UDPSrv_DataReceived;
             UDPSrv.DataSended += UDPSrv_DataSended;
             UDPSrv.StartUDPServer();
             ShowSendMsg("启动成功!");
-
-            // thread = new Thread(() =>
-            //{
-            //    DoUdpData();
-            //});
-            //thread.IsBackground = true;
-            //thread.Start();
             Task.Run(() =>
             {
+                PowerHelper.HangPos?.Clear();
+                var com = new ComParamter(ConfigHelper.GetValue("ComParamter"));
+                var PowerCom = com.PortName.Substring(3);
+                PowerHelper.SetDev_Port(Convert.ToByte(PowerCom));
+                PowerHelper.InitMeterParams();
+                ListionCom();
                 while (!cancellationTokenSource.Token.IsCancellationRequested)
                 {
-                    DoUdpData();
+                    DoUdpData();                 
+                }
+            });
+            Task.Run(async () =>
+            {
+                await Task.Delay(5000);
+                while (!cancellationTokenSource.Token.IsCancellationRequested)
+                {
+                    cDoUdpData();
                 }
             });
         }
@@ -176,9 +192,9 @@ namespace YQ.FunctionModule.ViewModels
             }
             lock (oRcvLock)
             {
-                if (TextRcv.Length > 2000)
+                if (TextRcv.Length > 12000)
                 {
-                    TextRcv = string.Empty;
+                    TextRcv = TextRcv.Substring(TextRcv.IndexOf(Environment.NewLine,2000)+2);
                 }
                 TextRcv += DateTime.Now.ToString("HH:mm:ss.fff ") + msg + Environment.NewLine;
             }
@@ -196,9 +212,9 @@ namespace YQ.FunctionModule.ViewModels
             }
             lock (oSendLock)
             {
-                if (TextSend.Length > 2000)
+                if (TextSend.Length > 12000)
                 {
-                    TextSend = string.Empty;
+                    TextSend = TextSend.Substring(TextSend.IndexOf(Environment.NewLine, 2000) + 2);
                 }
                 TextSend += DateTime.Now.ToString("HH:mm:ss.fff ") + msg + Environment.NewLine;
             }
@@ -233,14 +249,15 @@ namespace YQ.FunctionModule.ViewModels
             AbstractCmd cmd_rcv = new RequestCmd(rcvmsg);
             ShowRcvMsg("接收:" + rcvmsg.ToString());
             ReceiveData receiveData = new ReceiveData(cmd_rcv.cmd, cmd_rcv, remote.Address, remote.Port);
-
+            Remote=remote;
+            IsC = true;
             if (defaultschemeid == -1)
             {
-                var ldata = queue.Where(t => t.id == cmd_rcv.cmd);//判断重复命令的队列
-                if (ldata.Count() == 0)
-                {
+                //var ldata = queue.Where(t => t.id == cmd_rcv.cmd&&t.abstractCmd.data==cmd_rcv.data);//判断重复命令的队列
+                //if (ldata.Count() == 0)
+                //{
                     queue.Enqueue(receiveData);
-                }
+                //}
             }
             else
             {
@@ -262,12 +279,156 @@ namespace YQ.FunctionModule.ViewModels
                 if (queue.Count > 0)
                 {
                     ReceiveData receiveDat = queue.Peek();
-                    DealWidthRequest(receiveDat.abstractCmd, receiveDat.RemoteIP, receiveDat.RemotePort);
+                    Task.Run(() => {
+                        DealWidthRequest(receiveDat.abstractCmd, receiveDat.RemoteIP, receiveDat.RemotePort);
+                    });                    
                     queue.Dequeue();
-                    Thread.Sleep(50);
+                    Thread.Sleep(2);
                 }
             }
         }
+        private void cDoUdpData()
+        {
+            while (true)
+            {
+                if (cqueue.Count > 0&&IsC)
+                {
+                    var bbb = cqueue.TryPeek(out byte[] receiveDat);
+                    if (bbb)
+                    {
+                        UDPSrv?.SendData(receiveDat, Remote);
+                        cqueue.TryDequeue(out byte[] receiveDat1);
+                        Thread.Sleep(2);
+                    }
+                }
+            }
+        }
+        private void ListionCom()
+        {
+            var list = comList;
+            foreach (var item in list)
+            {
+                var com = new ComParamter(item.ComName +"-"+ item.ComPara);
+                SerialManager.Instance.CreateAndOpenPort(com);
+                if (SerialManager.Instance.PortList.ContainsKey(item.ComName.ToUpper()))
+                {
+                    SerialManager.Instance.PortList[item.ComName.ToUpper()].DataReceived += ListenInViewModel_DataReceived;
+
+                }
+            }
+        }
+        List<byte> ReceiveData = new List<byte>();
+        Dictionary<string, List<byte>> RData = new Dictionary<string, List<byte>>()
+        {
+            {"1",new List<byte>() },
+            {"2",new List<byte>() },
+            {"3",new List<byte>() },
+            {"4",new List<byte>() },
+            {"5",new List<byte>() },
+            {"6",new List<byte>() },
+            {"7",new List<byte>() },
+            {"8",new List<byte>() },
+            {"9",new List<byte>() },
+            {"10",new List<byte>() },
+            {"11",new List<byte>() },
+            {"12",new List<byte>() }
+        };
+        public static ConcurrentQueue<byte[]> cqueue = new ConcurrentQueue<byte[]>();
+        private void ListenInViewModel_DataReceived(object sender, System.IO.Ports.SerialDataReceivedEventArgs e)
+        {
+            if (e.EventType == SerialData.Chars)
+            {
+                var port = sender as SerialPort;               
+                lock (port)
+                {
+                    string data = string.Empty;
+                    string res = string.Empty;
+                    var dataArray = port.PortName.Substring(3).ToCharArray();
+                    byte[] buffer1;
+                    if (port.PortName.Substring(3) == "3")
+                    {                        
+                        if (port.BytesToRead > 0)
+                        {
+                            buffer1 = new byte[port.BytesToRead];
+                            port.Read(buffer1, 0, buffer1.Length);
+                            var str = string.Empty;
+                            foreach (byte b in buffer1)
+                            {
+                                str += b.ToString("X2");
+                            }
+                            LogService.Instance.Info(port.PortName + " 上报:" + str);
+                            ReceiveData.AddRange(buffer1);
+                            var Result = MeterInfoDataPack376.Instance.TryPackData(ReceiveData.ToArray());
+                            if (Result != DataPackMetaData.Null)
+                            {
+                                byte[] resbytes= ReceiveData.Skip((int)Result.StartIndex).Take((int)(Result.Length)).ToArray();
+                                data = "0" + ";" + "9" + ";" + BitConverter.ToString(resbytes).Replace("-", "");
+                                res = $"cmd=1007,ret=0,data={data}";
+                                ReceiveData.RemoveRange(0, (int)Result.StartIndex+ (int)Result.Length);
+                            }
+                        }
+                    }
+                    else if (port.PortName.EndsWith("1"))
+                    {
+                        if (port.BytesToRead > 0)
+                        {
+                            buffer1 = new byte[port.BytesToRead];
+                            port.Read(buffer1, 0, buffer1.Length);
+                            var str = string.Empty;
+                            foreach (byte b in buffer1)
+                            {
+                                str += b.ToString("X2");
+                            }
+                            LogService.Instance.Info(port.PortName + " 上报:" + str);
+                            var key=string.Empty;
+                            if (port.PortName.Length==5)
+                            {
+                                key = port.PortName.Substring(3, 1);
+                            }
+                            else if(port.PortName.Length == 6)
+                            {
+                                key = port.PortName.Substring(3, 2);
+                            }
+                            RData[key].AddRange(buffer1);
+                            var Result = MeterInfoDataPack.Instance.TryPackData(RData[key].ToArray());
+                            if (Result != DataPackMetaData.Null)
+                            {
+                                byte[] resbytes = RData[key].Skip((int)Result.StartIndex).Take((int)(Result.Length)).ToArray();
+                                data = key + ";" + "1" + ";" + BitConverter.ToString(resbytes).Replace("-", "");
+                                res = $"cmd=1007,ret=0,data={data}";
+                                RData[key].RemoveRange(0, (int)Result.StartIndex + (int)Result.Length);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (port.BytesToRead > 0)
+                        {
+                            buffer1 = new byte[port.BytesToRead];
+                            port.Read(buffer1, 0, buffer1.Length);
+                        }
+                        else
+                        {
+                            return;
+                        }
+                        if (buffer1.Length < 5)
+                        {
+                            return;
+                        }
+                        data = dataArray[0] + ";" + dataArray[1] + ";" + BitConverter.ToString(buffer1).Replace("-", "");
+                        res = $"cmd=1007,data={data}";
+                    }
+                    byte[] buffer = Encoding.UTF8.GetBytes(res);
+                    if (buffer.Length<5)
+                    {
+                        return;
+                    }
+                    cqueue.Enqueue(buffer);
+                    port.DiscardInBuffer();
+                }
+            }
+        }
+
         private void SendUDPMsgBack(IPAddress remoteIP, int remotePort, AbstractCmd res)
         {
             try
@@ -276,7 +437,6 @@ namespace YQ.FunctionModule.ViewModels
                 byte[] data = Encoding.UTF8.GetBytes(sendstr);
                 //发送信息
                 UDPSrv.SendData(data, new IPEndPoint(remoteIP, remotePort));
-
             }
             catch (Exception ex)
             {
@@ -292,7 +452,12 @@ namespace YQ.FunctionModule.ViewModels
                 ICmdAnalyse analyse = AnalyseFactory.Instance.GetCmdAnalyse(cmd.cmd);
                 try
                 {
+                    
                     res = analyse.GetResponseCmd(cmd);
+                    if (cmd.cmd == "1007")
+                    {
+                        return;
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -326,13 +491,16 @@ namespace YQ.FunctionModule.ViewModels
             this.eventAggregator.GetEvent<SendEvent>().Subscribe(ShowSendMsg);
             SCmd = "cmd=0101,data=null";
             client = new Socket(SocketType.Dgram, ProtocolType.Udp);
-            serverip = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 20000);
+            serverip = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 10001);
             clientip = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 21000);//TODO:界面输入
             client.Bind(clientip);
             defaultschemeid = Convert.ToInt32(ConfigHelper.GetValue("defaultschemeid"));
             PowerHelper.Std_consant= Convert.ToDouble(ConfigHelper.GetValue("edtFreq"));
             log = this.container.Resolve<ILogService>();
+            listenInBll = this.container.Resolve<ListenInBll>();
+            comList = listenInBll.GetComs();
             Start();
+            
         }
     }
 }
