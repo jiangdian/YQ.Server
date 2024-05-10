@@ -38,6 +38,10 @@ namespace YQ.Parsing.DoCmdAnalyse
                 jYHelper2.CloseAllDO(Convert.ToInt32(ConfigHelper.GetValue("JY2Addr")), Convert.ToInt32(ConfigHelper.GetValue("JY2Num")));
             }
             PowerHelper.HangPos?.Clear();
+            for (int i = 0; i < 12; i++)
+            {
+                PowerHelper.NoMeter(i, false);
+            }
         }
     }
 }
