@@ -18,6 +18,7 @@ namespace YQ.Parsing.DoCmdAnalyse
             int MeterID = Convert.ToInt32(requestCmd.data[0]);
             var IsCheak = requestCmd.data[1];
             var IsYaJie = requestCmd.data[2];
+            JYHelper jYHelper2 = new JYHelper();
             if (IsCheak=="1")
             {
                 PowerHelper.NoMeter(MeterID-1, true);
@@ -27,10 +28,18 @@ namespace YQ.Parsing.DoCmdAnalyse
                 byte[] b = GongHao.ChangeGH(requestCmd.data[0]);
                 com.SendData.AddRange(b);
                 SerialPortService.SendByte(com);
+                if (jYHelper2.JYConnet(ConfigHelper.GetValue("JY2IP"), Convert.ToInt32(ConfigHelper.GetValue("JY2Port"))))
+                {
+                        jYHelper2.OpenDO(254, MeterID - 1);
+                }
             }
             else
             {
                 PowerHelper.NoMeter(MeterID-1, false);
+                if (jYHelper2.JYConnet(ConfigHelper.GetValue("JY2IP"), Convert.ToInt32(ConfigHelper.GetValue("JY2Port"))))
+                {
+                    jYHelper2.CloseDO(254, MeterID - 1);
+                }
             }            
             PowerHelper.SetParams();
             

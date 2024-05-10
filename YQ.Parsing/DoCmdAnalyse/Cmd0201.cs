@@ -41,17 +41,17 @@ namespace YQ.Parsing.DoCmdAnalyse
             {
                 //StdBuffer.Clear();
                 PowerHelper.IsPowering = true;
-                if (PowerHelper.HangPos?.Count==0)
-                {
+                //if (PowerHelper.HangPos?.Count==0)
+                //{
                     LightOn();
-                }
+                //}
                 PowerHelper.SetParams();
                 PowerHelper.Power_On(power);//一般情况下的升降源
                 PowerHelper.IsPowering = false;
             });
             powerThread.IsBackground = true;
             powerThread.Start();
-            Thread.Sleep(11000);
+            //Thread.Sleep(11000);
             //PowerParam power2 = new PowerParam();
             //DateTime dt=DateTime.Now;
             //while (power2.Ua < power.Ua - 10&&dt.AddSeconds(20)>DateTime.Now)
