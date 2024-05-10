@@ -129,6 +129,10 @@ namespace YQ.FunctionModule.ViewModels
                 var PowerCom = com.PortName.Substring(3);
                 PowerHelper.SetDev_Port(Convert.ToByte(PowerCom));
                 PowerHelper.InitMeterParams();
+                for (int i = 0; i < 12; i++)
+                {
+                    PowerHelper.NoMeter(i, false);
+                }
                 ListionCom();
                 while (!cancellationTokenSource.Token.IsCancellationRequested)
                 {
