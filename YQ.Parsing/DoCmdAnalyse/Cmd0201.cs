@@ -43,7 +43,7 @@ namespace YQ.Parsing.DoCmdAnalyse
                 PowerHelper.IsPowering = true;
                 //if (PowerHelper.HangPos?.Count==0)
                 //{
-                    LightOn();
+                //    LightOn();
                 //}
                 PowerHelper.SetParams();
                 PowerHelper.Power_On(power);//一般情况下的升降源
