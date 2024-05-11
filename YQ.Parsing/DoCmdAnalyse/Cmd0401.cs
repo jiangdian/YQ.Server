@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using YQ.Tool;
 using YQ.Tool.JY;
 using static YQ.Parsing.DoCmdAnalyse.Cmd0506;
@@ -59,7 +60,7 @@ namespace YQ.Parsing.DoCmdAnalyse
                         jYHelper.CloseDO(254, MeterID - 1);
                     }
                 }
-
+                Thread.Sleep(1000);
                 rlt = new ResponseCmd(requestCmd.cmd, 0, null);
                 return rlt;
             }

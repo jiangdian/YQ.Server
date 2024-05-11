@@ -42,6 +42,7 @@ namespace YQ.Parsing.DoCmdAnalyse
             {
                 PowerHelper.NoMeter(i, false);
             }
+            PowerHelper.SetParams();
         }
     }
 }
