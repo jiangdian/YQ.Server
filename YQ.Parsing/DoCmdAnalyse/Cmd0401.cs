@@ -15,14 +15,13 @@ namespace YQ.Parsing.DoCmdAnalyse
         private static readonly object _locker = new object();
         public override AbstractCmd GetResponseCmd(AbstractCmd requestCmd)
         {
-            lock (_locker)
-            {
+            //lock (_locker)
+            //{
                 AbstractCmd rlt = null;
-                //PowerHelper.InitMeterParams();
                 int MeterID = Convert.ToInt32(requestCmd.data[0]);
                 var IsCheak = requestCmd.data[1];
-                var IsYaJie = requestCmd.data[2];
-                JYHelper jYHelper2 = new JYHelper();
+                //var IsYaJie = requestCmd.data[2];
+                //JYHelper jYHelper2 = new JYHelper();
                 if (IsCheak == "1")
                 {
                     PowerHelper.NoMeter(MeterID - 1, true);
@@ -32,39 +31,39 @@ namespace YQ.Parsing.DoCmdAnalyse
                     byte[] b = GongHao.ChangeGH(requestCmd.data[0]);
                     com.SendData.AddRange(b);
                     SerialPortService.SendByte(com);
-                    if (jYHelper2.JYConnet(ConfigHelper.GetValue("JY2IP"), Convert.ToInt32(ConfigHelper.GetValue("JY2Port"))))
-                    {
-                        jYHelper2.OpenDO(254, MeterID - 1);
-                    }
+                    //if (jYHelper2.JYConnet(ConfigHelper.GetValue("JY2IP"), Convert.ToInt32(ConfigHelper.GetValue("JY2Port"))))
+                    //{
+                    //    jYHelper2.OpenDO(254, MeterID - 1);
+                    //}
                 }
                 else
                 {
                     PowerHelper.NoMeter(MeterID - 1, false);
-                    if (jYHelper2.JYConnet(ConfigHelper.GetValue("JY2IP"), Convert.ToInt32(ConfigHelper.GetValue("JY2Port"))))
-                    {
-                        jYHelper2.CloseDO(254, MeterID - 1);
-                    }
+                    //if (jYHelper2.JYConnet(ConfigHelper.GetValue("JY2IP"), Convert.ToInt32(ConfigHelper.GetValue("JY2Port"))))
+                    //{
+                    //    jYHelper2.CloseDO(254, MeterID - 1);
+                    //}
                 }
                 PowerHelper.SetParams();
 
-                JYHelper jYHelper = new JYHelper();
-                if (jYHelper.JYConnet(ConfigHelper.GetValue("JY1IP"), Convert.ToInt32(ConfigHelper.GetValue("JY1Port"))))
-                {
-                    if (IsYaJie == "01")
-                    {
-                        jYHelper.OpenDO(254, MeterID - 1);
+                //JYHelper jYHelper = new JYHelper();
+                //if (jYHelper.JYConnet(ConfigHelper.GetValue("JY1IP"), Convert.ToInt32(ConfigHelper.GetValue("JY1Port"))))
+                //{
+                //    if (IsYaJie == "01")
+                //    {
+                //        jYHelper.OpenDO(254, MeterID - 1);
 
-                    }
-                    else
-                    {
-                        jYHelper.CloseDO(254, MeterID - 1);
-                    }
-                }
-                Thread.Sleep(2000);
+                //    }
+                //    else
+                //    {
+                //        jYHelper.CloseDO(254, MeterID - 1);
+                //    }
+                //}
+                //Thread.Sleep(2000);
                 rlt = new ResponseCmd(requestCmd.cmd, 0, null);
                 return rlt;
             }
             
-        }
+        //}
     }
 }
