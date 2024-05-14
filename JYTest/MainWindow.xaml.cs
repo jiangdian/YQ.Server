@@ -24,5 +24,21 @@ namespace JYTest
         {
             InitializeComponent();
         }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            for (int i = 0; i < 8; i++)
+            {
+                JYHelper.Instanse().OpenDO(254, i);
+            }
+            
+        }
+
+        private void Button_Click_1(object sender, RoutedEventArgs e)
+        {
+            string[] BarCodes = {"123","12345" };
+            Array.Sort(BarCodes, (x, y) => y.Length.CompareTo(x.Length));
+            //JYHelper.Instanse().CloseAllDO();
+        }
     }
 }
