@@ -9,6 +9,7 @@
             regionManager.RegisterViewWithRegion("TwoRegion", typeof(Setting));
             regionManager.RegisterViewWithRegion("ThreeRegion", typeof(SerialPortSetting));
             regionManager.RegisterViewWithRegion("FourRegion", typeof(SingleTest));
+            regionManager.RegisterViewWithRegion("FiveRegion", typeof(CommunicationTool));
         }
 
         public void RegisterTypes(IContainerRegistry containerRegistry)

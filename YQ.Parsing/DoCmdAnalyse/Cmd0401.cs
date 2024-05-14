@@ -60,7 +60,7 @@ namespace YQ.Parsing.DoCmdAnalyse
                         jYHelper.CloseDO(254, MeterID - 1);
                     }
                 }
-                Thread.Sleep(1000);
+                Thread.Sleep(2000);
                 rlt = new ResponseCmd(requestCmd.cmd, 0, null);
                 return rlt;
             }

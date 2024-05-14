@@ -22,9 +22,6 @@
     <Reference Include="log4net">
       <HintPath>Resource\log4net.dll</HintPath>
     </Reference>
-    <Reference Include="WindowsBase">
-      <HintPath>Resource\WindowsBase.dll</HintPath>
-    </Reference>
   </ItemGroup>
 
   <ItemGroup>
