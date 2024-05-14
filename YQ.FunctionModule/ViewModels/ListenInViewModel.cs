@@ -410,6 +410,12 @@ namespace YQ.FunctionModule.ViewModels
                         {
                             buffer1 = new byte[port.BytesToRead];
                             port.Read(buffer1, 0, buffer1.Length);
+                            var str = string.Empty;
+                            foreach (byte b in buffer1)
+                            {
+                                str += b.ToString("X2");
+                            }
+                            LogService.Instance.Info(port.PortName + " 上报:" + str);
                         }
                         else
                         {
