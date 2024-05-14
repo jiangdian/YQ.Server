@@ -50,6 +50,9 @@
                 <controls:MetroTabItem Header="单点测试" controls:HeaderedControlHelper.HeaderFontSize="16" Margin="10,0" Width="90">
                     <ContentControl prism:RegionManager.RegionName="FourRegion"/>
                 </controls:MetroTabItem>
+                <controls:MetroTabItem Header="通信工具" controls:HeaderedControlHelper.HeaderFontSize="16" Margin="10,0" Width="90">
+                    <ContentControl prism:RegionManager.RegionName="FiveRegion"/>
+                </controls:MetroTabItem>
             </controls:MetroTabControl.Items>
         </controls:MetroTabControl>
         
