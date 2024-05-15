@@ -51,7 +51,7 @@ namespace YQ.Parsing.DoCmdAnalyse
             });
             powerThread.IsBackground = true;
             powerThread.Start();
-            //Thread.Sleep(11000);
+            Thread.Sleep(9000);
             //PowerParam power2 = new PowerParam();
             //DateTime dt=DateTime.Now;
             //while (power2.Ua < power.Ua - 10&&dt.AddSeconds(20)>DateTime.Now)
