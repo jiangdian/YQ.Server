@@ -106,11 +106,15 @@ namespace JYTest
                 connectClient();
             }
         }
+        private static readonly object _lock=new object();
         public void OpenDO(int addr, int io)
         {
-            byte[] info = CModbusDll.WriteDO(addr, io, true);
-            sendinfo(info);
-        }
+            lock (_lock)
+            {
+                byte[] info = CModbusDll.WriteDO(addr, io, true);
+                sendinfo(info);
+            }
+          }
         public void OpenAllDO(int addr, int io)
         {
             var info = CModbusDll.WriteAllDO(addr, io, true);
