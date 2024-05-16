@@ -15,8 +15,8 @@ namespace YQ.Parsing.DoCmdAnalyse
         private static readonly object _locker = new object();
         public override AbstractCmd GetResponseCmd(AbstractCmd requestCmd)
         {
-            //lock (_locker)
-            //{
+            lock (_locker)
+            {
                 AbstractCmd rlt = null;
                 int MeterID = Convert.ToInt32(requestCmd.data[0]);
                 var IsCheak = requestCmd.data[1];
@@ -59,11 +59,11 @@ namespace YQ.Parsing.DoCmdAnalyse
                 //        jYHelper.CloseDO(254, MeterID - 1);
                 //    }
                 //}
-                //Thread.Sleep(2000);
+                Thread.Sleep(2000);
                 rlt = new ResponseCmd(requestCmd.cmd, 0, null);
                 return rlt;
             }
-            
-        //}
+
+        }
     }
 }

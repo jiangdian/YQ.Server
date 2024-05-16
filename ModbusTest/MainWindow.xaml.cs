@@ -24,5 +24,41 @@ namespace ModbusTest
         {
             InitializeComponent();
         }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            var data = Encoding.UTF8.GetBytes(code.Text);
+            var crc = CalculateCRC(data, data.Length);
+            var buffer1=BitConverter.GetBytes(crc);
+            var str = string.Empty;
+            foreach (byte b in buffer1)
+            {
+                str += b.ToString("X2");
+            }
+            Crc.Text = str;
+        }
+        public static ushort CalculateCRC(byte[] data, int length)
+        {
+            ushort crc = 0xFFFF;
+
+            for (int i = 0; i < length; i++)
+            {
+                crc ^= data[i];
+                for (int j = 0; j < 8; j++)
+                {
+                    if ((crc & 0x0001) == 1)
+                    {
+                        crc >>= 1;
+                        crc ^= 0xA001;
+                    }
+                    else
+                    {
+                        crc >>= 1;
+                    }
+                }
+            }
+
+            return crc;
+        }
     }
 }
