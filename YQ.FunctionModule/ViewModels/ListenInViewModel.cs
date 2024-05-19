@@ -287,7 +287,7 @@ namespace YQ.FunctionModule.ViewModels
                         DealWidthRequest(receiveDat.abstractCmd, receiveDat.RemoteIP, receiveDat.RemotePort);
                     });                    
                     queue.Dequeue();
-                    Thread.Sleep(2);
+                    Thread.Sleep(50);
                 }
             }
         }
@@ -302,7 +302,7 @@ namespace YQ.FunctionModule.ViewModels
                     {
                         UDPSrv?.SendData(receiveDat, Remote);
                         cqueue.TryDequeue(out byte[] receiveDat1);
-                        Thread.Sleep(2);
+                        Thread.Sleep(50);
                     }
                 }
             }
