@@ -355,12 +355,8 @@ namespace YQ.FunctionModule.ViewModels
                         {
                             buffer1 = new byte[port.BytesToRead];
                             port.Read(buffer1, 0, buffer1.Length);
-                            var str = string.Empty;
-                            foreach (byte b in buffer1)
-                            {
-                                str += b.ToString("X2");
-                            }
-                            LogService.Instance.Info(port.PortName + " 上报:" + str);
+                            
+                            
                             ReceiveData.AddRange(buffer1);
                             var Result = MeterInfoDataPack376.Instance.TryPackData(ReceiveData.ToArray());
                             if (Result != DataPackMetaData.Null)
@@ -368,6 +364,12 @@ namespace YQ.FunctionModule.ViewModels
                                 byte[] resbytes= ReceiveData.Skip((int)Result.StartIndex).Take((int)(Result.Length)).ToArray();
                                 data = "0" + ";" + "9" + ";" + BitConverter.ToString(resbytes).Replace("-", "");
                                 res = $"cmd=1007,ret=0,data={data}";
+                                var str = string.Empty;
+                                foreach (byte b in resbytes)
+                                {
+                                    str += b.ToString("X2");
+                                }
+                                LogService.Instance.Info(port.PortName + " 上报:" + str);
                                 ReceiveData.RemoveRange(0, (int)Result.StartIndex+ (int)Result.Length);
                             }
                         }
