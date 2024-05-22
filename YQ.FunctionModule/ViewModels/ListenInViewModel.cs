@@ -198,7 +198,7 @@ namespace YQ.FunctionModule.ViewModels
             {
                 if (TextRcv.Length > 12000)
                 {
-                    TextRcv = TextRcv.Substring(TextRcv.IndexOf(Environment.NewLine,2000)+2);
+                    TextRcv = string.Empty;
                 }
                 TextRcv += DateTime.Now.ToString("HH:mm:ss.fff ") + msg + Environment.NewLine;
             }
@@ -218,7 +218,8 @@ namespace YQ.FunctionModule.ViewModels
             {
                 if (TextSend.Length > 12000)
                 {
-                    TextSend = TextSend.Substring(TextSend.IndexOf(Environment.NewLine, 2000) + 2);
+                    //TextSend = TextSend.Substring(TextSend.IndexOf(Environment.NewLine, 2000) + 2);
+                    TextSend = string.Empty;
                 }
                 TextSend += DateTime.Now.ToString("HH:mm:ss.fff ") + msg + Environment.NewLine;
             }
