@@ -15,6 +15,16 @@ namespace YQ.Server
     /// </summary>
     public partial class App : PrismApplication
     {
+        public App()
+        {
+            this.Exit += App_Exit;
+        }
+
+        private void App_Exit(object sender, ExitEventArgs e)
+        {
+            throw new NotImplementedException();
+        }
+
         protected override Window CreateShell()
         {
             if (SingletonWindow.Process())
