@@ -23,7 +23,7 @@ namespace YQ.Parsing.DoCmdAnalyse
             SerialPortService.SendData1(com);
             var gh = GongHao.GetGH(com.RecData.ToArray());
             var data = requestCmd.data[0]+";"
-                +GongHao.ToFloat(gh.PA) + ";" + GongHao.ToFloat(gh.SA) + ";" + 0 + ";"
+                + GongHao.ToFloat(gh.PA) + ";" + GongHao.ToFloat(gh.SA) + ";" + 0 + ";"
                  + GongHao.ToFloat(gh.PB) + ";" + GongHao.ToFloat(gh.SB) + ";" + 0 + ";"
                  + GongHao.ToFloat(gh.PC) + ";" + GongHao.ToFloat(gh.SC) + ";" + 0;
             rlt = new ResponseCmd(GetCmdString(requestCmd.cmd, 0, data));
@@ -83,7 +83,7 @@ namespace YQ.Parsing.DoCmdAnalyse
                 }
                 return null;
             }
-            public static float ToFloat(byte[] bytes)
+            public static double ToFloat(byte[] bytes)
             {
                 int jiefu = bytes[0] >> 4;
                 int jiema = bytes[0] & 0xf;
@@ -96,7 +96,7 @@ namespace YQ.Parsing.DoCmdAnalyse
                 Int64 zhi = Convert.ToInt64(s);
 
                 float convertedValue = (float)((shufu == 1 ? -1 : 1) * zhi * Math.Pow(0.1, jiema+6));
-                return convertedValue;
+                return Math.Round(convertedValue,2);
             }
         }
         public  class BaseProtocol 
