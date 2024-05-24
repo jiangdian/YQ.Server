@@ -31,7 +31,15 @@ namespace YQ.Tool
                 int PackLength = ParseAvailable(Bytes, i);
                 if (PackLength <= 0)
                     continue;
-                return new DataPackMetaData((uint)i, (uint)PackLength, TypeID_698);
+                if (Bytes.ElementAtOrDefault(i - 4) == 0xFE)
+                {
+                    return new DataPackMetaData((uint)(i - 4), (uint)(PackLength + 4), TypeID_698);
+                }
+                else
+                {
+                    return new DataPackMetaData((uint)i, (uint)PackLength, TypeID_698);
+                }
+                //return new DataPackMetaData((uint)i, (uint)PackLength, TypeID_698);
             }
             return DataPackMetaData.Null;
         }
