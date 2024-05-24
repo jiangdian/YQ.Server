@@ -43,7 +43,7 @@
             <Button Width="100" Name="btnStopSrv" Margin="{StaticResource ControlMargin}" Content="停止服务"  FontSize="12" Command="{Binding StopCommand}"/>
             <Button Width="100" Name="btnClear" Margin="{StaticResource ControlMargin}" Content="清除信息" FontSize="12" Command="{Binding ClearCommand}"/>
         </WrapPanel>
-        <TextBox x:Name="rtxtSrvRcv" Grid.Row="1" Margin="5 5 5 5" Grid.Column="0"  ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Auto" TextChanged="rtxtSrvRcv_TextChanged" Text="{Binding TextRcv}"/>
-        <TextBox x:Name="rtxtSrvSend" Grid.Row="1" Grid.Column="1" Margin="5 5 5 5"  ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Auto" TextChanged="rtxtSrvSend_TextChanged" Text="{Binding TextSend}"/>
+        <TextBox x:Name="rtxtSrvRcv" Grid.Row="1" Margin="5 5 5 5" Grid.Column="0"  TextWrapping="Wrap"   ScrollViewer.VerticalScrollBarVisibility="Auto" TextChanged="rtxtSrvRcv_TextChanged" Text="{Binding TextRcv}"/>
+        <TextBox x:Name="rtxtSrvSend" Grid.Row="1" Grid.Column="1" Margin="5 5 5 5" TextWrapping="Wrap"  ScrollViewer.VerticalScrollBarVisibility="Auto" TextChanged="rtxtSrvSend_TextChanged" Text="{Binding TextSend}"/>
     </Grid>
 </UserControl>

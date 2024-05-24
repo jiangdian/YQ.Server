@@ -196,7 +196,7 @@ namespace YQ.FunctionModule.ViewModels
             }
             lock (oRcvLock)
             {
-                if (TextRcv.Length > 12000)
+                if (TextRcv.Length > 6000)
                 {
                     TextRcv = string.Empty;
                 }
@@ -216,7 +216,7 @@ namespace YQ.FunctionModule.ViewModels
             }
             lock (oSendLock)
             {
-                if (TextSend.Length > 12000)
+                if (TextSend.Length > 6000)
                 {
                     //TextSend = TextSend.Substring(TextSend.IndexOf(Environment.NewLine, 2000) + 2);
                     TextSend = string.Empty;
@@ -308,6 +308,26 @@ namespace YQ.FunctionModule.ViewModels
                 }
             }
         }
+
+        /// <summary>
+        /// 计算byte数组中的bit数
+        /// </summary>
+        /// <param name="bytes"></param>
+        /// <returns></returns>
+        public static long CountBits(byte[] bytes)
+        {
+            long totalBits = bytes.Length * 8; // 计算总的bit数（byte数组长度乘以8）
+
+            if (bytes.Length > 0)
+            {
+                int remainingBits = 8 - (bytes.Length - 1) % 8; // 计算最后一个byte的剩余bit数
+                totalBits -= remainingBits < 8 ? remainingBits : 0; // 如果剩余的bit数小于8，则从总bit数中减去
+            }
+
+            return totalBits;
+        }
+
+
         private void ListionCom()
         {
             var list = comList;
@@ -458,7 +478,6 @@ namespace YQ.FunctionModule.ViewModels
         }
         public void DealWidthRequest(AbstractCmd cmd, IPAddress remoteIP, int remotePort)
         {
-            string strcmd = cmd.ToString();
             try
             {
                 AbstractCmd res;
