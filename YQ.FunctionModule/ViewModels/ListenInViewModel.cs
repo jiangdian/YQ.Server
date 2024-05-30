@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Interop;
+using System.Windows.Markup;
 using YQ.FreeSQL.Entity;
 using YQ.FunctionModule.Bll;
 using YQ.Parsing;
@@ -535,12 +536,28 @@ namespace YQ.FunctionModule.ViewModels
             clientip = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 21000);//TODO:界面输入
             client.Bind(clientip);
             defaultschemeid = Convert.ToInt32(ConfigHelper.GetValue("defaultschemeid"));
-            PowerHelper.Std_consant= Convert.ToDouble(ConfigHelper.GetValue("edtFreq"));
+            PowerHelper.Std_consant = Convert.ToDouble(ConfigHelper.GetValue("edtFreq"));
             //log = this.container.Resolve<ILogService>();
             listenInBll = this.container.Resolve<ListenInBll>();
             comList = listenInBll.GetComs();
             Start();
-            
+            //Task.Run(async () => {
+            //    await Task.Delay(5000);
+            //    int i = 10000;
+            //    while (i>0) {
+            //        this.eventAggregator.GetEvent<RcvEvent>().Publish("接收:" + "cmd = 1007, ret = 0, data = 8; 1; 68470043260201000000000010294707010148227f000101020412000116021a07e804120301020203110911000101020216041001f40203110911000101020216041001f400ecc716");
+            //        i--;
+            //    }
+            //});
+            //Task.Run(async () => {
+            //    await Task.Delay(5000);
+            //    int i = 10000;
+            //    while (i > 0)
+            //    {
+            //        this.eventAggregator.GetEvent<SendEvent>().Publish("接收:" + "cmd = 1007, ret = 0, data = 8; 1; 68470043260201000000000010294707010148227f000101020412000116021a07e804120301020203110911000101020216041001f40203110911000101020216041001f400ecc716");
+            //        i--;
+            //    }
+            //});
         }
     }
 }
