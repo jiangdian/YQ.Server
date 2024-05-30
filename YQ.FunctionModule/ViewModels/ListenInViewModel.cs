@@ -277,6 +277,10 @@ namespace YQ.FunctionModule.ViewModels
                 }
             }
         }
+
+        /// <summary>
+        /// 从检测软件收到数据
+        /// </summary>
         private void DoUdpData()
         {
             while (true)
@@ -286,12 +290,16 @@ namespace YQ.FunctionModule.ViewModels
                     ReceiveData receiveDat = queue.Peek();
                     Task.Run(() => {
                         DealWidthRequest(receiveDat.abstractCmd, receiveDat.RemoteIP, receiveDat.RemotePort);
-                    });                    
+                    });
                     queue.Dequeue();
-                    Thread.Sleep(50);
+                    Thread.Sleep(2);
                 }
             }
         }
+
+        /// <summary>
+        /// UDP发送
+        /// </summary>
         private void cDoUdpData()
         {
             while (true)
@@ -303,7 +311,7 @@ namespace YQ.FunctionModule.ViewModels
                     {
                         UDPSrv?.SendData(receiveDat, Remote);
                         cqueue.TryDequeue(out byte[] receiveDat1);
-                        Thread.Sleep(50);
+                        Thread.Sleep(2);
                     }
                 }
             }
