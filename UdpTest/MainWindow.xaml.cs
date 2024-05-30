@@ -82,15 +82,19 @@ namespace UdpTest
             {
                 if (queue.Count > 0)
                 {
-                    byte[] receiveDat = queue.Peek();
-                    Task.Run(() =>
+                    var bbb = queue.TryPeek(out byte[]? receiveDat);
+                    if (bbb)
                     {
-                        //Thread.Sleep(1000);
-                        UDPSrv?.SendData(receiveDat, serverip);
-                    });
+                        Task.Run(() =>
+                        {
+                            //Thread.Sleep(1000);
+                            UDPSrv?.SendData(receiveDat, serverip);
+                        });
+                    }
 
-                    queue.Dequeue();
-                    Thread.Sleep(1);
+
+                    queue.TryDequeue(out byte[] receiveDat1);
+                    Thread.Sleep(2);
                 }
             }
         }
@@ -100,7 +104,7 @@ namespace UdpTest
             {
                 if (cqueue.Count > 0)
                 {
-                    var bbb  = cqueue.TryPeek(out byte[] receiveDat);
+                    var bbb  = cqueue.TryPeek(out byte[]? receiveDat);
                     if (bbb)
                     {
                         Task.Run(() =>
@@ -110,7 +114,7 @@ namespace UdpTest
                         });
 
                         cqueue.TryDequeue(out byte[] receiveDat1);
-                        Thread.Sleep(1);
+                        Thread.Sleep(2);
                     }
                     
                 }
@@ -137,7 +141,7 @@ namespace UdpTest
                     var res = "681900c305000000000000a0725186010020001000f0000074516681900c305000000000000a0725186010020001000f0000";
                     byte[] buffer = Encoding.UTF8.GetBytes(res);
                     queue.Enqueue(buffer);
-                    Thread.Sleep(5);
+                    //Thread.Sleep(5);
                     i--;
                 }
             }
@@ -164,7 +168,7 @@ namespace UdpTest
 
         private void Send2(int i)
         {
-            int ix = 1000;
+            int ix = 10000;
 
 
             //lock (dics[i])

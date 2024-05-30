@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MahApps.Metro.Controls;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,6 +11,7 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Media.TextFormatting;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
@@ -20,19 +22,49 @@ namespace YQ.FunctionModule.Views
     /// </summary>
     public partial class ListenIn : UserControl
     {
-        public ListenIn()
+        private static readonly object oRcvLock = new object();
+        private static readonly object oSendLock = new object();
+        private ILogService log;
+        public ListenIn(IEventAggregator eventAggregator, IContainerExtension container)
         {
             InitializeComponent();
+            eventAggregator.GetEvent<RcvEvent>().Subscribe(ShowRcvMsg);
+            eventAggregator.GetEvent<SendEvent>().Subscribe(ShowSendMsg);
+            log = container.Resolve<ILogService>();
         }
-
-        private void rtxtSrvRcv_TextChanged(object sender, TextChangedEventArgs e)
+        private void ShowSendMsg(string msg)
         {
-            rtxtSrvRcv.ScrollToEnd();
+            lock (oSendLock)
+            {
+                rtxtSrvSend.BeginInvoke(() =>
+                {
+                    if (rtxtSrvSend.Document.Blocks.Count > 100)
+                    {
+                        rtxtSrvSend.Document.Blocks.Clear();
+                        rtxtSrvSend.AppendText(Environment.NewLine);
+                    }
+                    rtxtSrvSend.AppendText(DateTime.Now.ToString("HH:mm:ss.fff ") + msg + Environment.NewLine);
+                    rtxtSrvSend.ScrollToEnd();
+                });
+            }
+            log.Info(msg);
         }
-
-        private void rtxtSrvSend_TextChanged(object sender, TextChangedEventArgs e)
+        private void ShowRcvMsg(string msg)
         {
-            rtxtSrvSend.ScrollToEnd();
+            //lock (oRcvLock)
+            //{
+                rtxtSrvRcv.BeginInvoke(new Action(() =>
+                {
+                    if (rtxtSrvRcv.Document.Blocks.Count > 100)
+                    {
+                        rtxtSrvRcv.Document.Blocks.Clear();
+                        rtxtSrvRcv.AppendText(Environment.NewLine);
+                    }
+                    rtxtSrvRcv.AppendText(DateTime.Now.ToString("HH:mm:ss.fff ") + msg + Environment.NewLine);
+                    rtxtSrvRcv.ScrollToEnd();
+                }));
+            //}
+            log.Info(msg);
         }
     }
 }

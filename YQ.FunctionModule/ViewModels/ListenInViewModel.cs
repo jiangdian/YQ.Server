@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Interop;
 using YQ.FreeSQL.Entity;
 using YQ.FunctionModule.Bll;
 using YQ.Parsing;
@@ -121,7 +122,8 @@ namespace YQ.FunctionModule.ViewModels
             UDPSrv.DataReceived += UDPSrv_DataReceived;
             UDPSrv.DataSended += UDPSrv_DataSended;
             UDPSrv.StartUDPServer();
-            ShowSendMsg("启动成功!");
+            this.eventAggregator.GetEvent<SendEvent>().Publish("启动成功!");
+            //ShowSendMsg("启动成功!");
             Task.Run(() =>
             {
                 PowerHelper.HangPos?.Clear();
@@ -161,7 +163,8 @@ namespace YQ.FunctionModule.ViewModels
                 if (UDPSrv != null)
                 {
                     UDPSrv.StopUDPServer();
-                    ShowSendMsg("已停止!");
+                    this.eventAggregator.GetEvent<SendEvent>().Publish("已停止!");
+                    //ShowSendMsg("已停止!");
                 }
             }
             catch (Exception ex)
@@ -235,7 +238,9 @@ namespace YQ.FunctionModule.ViewModels
             try
             {
                 string msg = Encoding.UTF8.GetString(data);
-                ShowSendMsg("应答:" + msg);
+                this.eventAggregator.GetEvent<SendEvent>().Publish("应答:" + msg);
+
+                //ShowSendMsg("应答:" + msg);
             }
             catch (Exception ex)
             {
@@ -252,7 +257,8 @@ namespace YQ.FunctionModule.ViewModels
         {
             string rcvmsg = Encoding.UTF8.GetString(data);
             AbstractCmd cmd_rcv = new RequestCmd(rcvmsg);
-            ShowRcvMsg("接收:" + rcvmsg.ToString());
+            this.eventAggregator.GetEvent<RcvEvent>().Publish("接收:" + rcvmsg.ToString());
+            //ShowRcvMsg("接收:" + rcvmsg.ToString());
             ReceiveData receiveData = new ReceiveData(cmd_rcv.cmd, cmd_rcv, remote.Address, remote.Port);
             Remote=remote;
             IsC = true;
@@ -288,7 +294,7 @@ namespace YQ.FunctionModule.ViewModels
                         DealWidthRequest(receiveDat.abstractCmd, receiveDat.RemoteIP, receiveDat.RemotePort);
                     });                    
                     queue.Dequeue();
-                    Thread.Sleep(50);
+                    Thread.Sleep(2);
                 }
             }
         }
@@ -303,7 +309,7 @@ namespace YQ.FunctionModule.ViewModels
                     {
                         UDPSrv?.SendData(receiveDat, Remote);
                         cqueue.TryDequeue(out byte[] receiveDat1);
-                        Thread.Sleep(50);
+                        Thread.Sleep(2);
                     }
                 }
             }
@@ -473,7 +479,9 @@ namespace YQ.FunctionModule.ViewModels
             }
             catch (Exception ex)
             {
-                ShowSendMsg("发送信息失败！" + ex.Message);
+                this.eventAggregator.GetEvent<SendEvent>().Publish("发送信息失败！" + ex.Message);
+
+                //ShowSendMsg("发送信息失败！" + ex.Message);
             }
         }
         public void DealWidthRequest(AbstractCmd cmd, IPAddress remoteIP, int remotePort)
@@ -519,8 +527,8 @@ namespace YQ.FunctionModule.ViewModels
             this.container = container;
             this.eventAggregator = eventAggregator;
             CmdList = this.container.Resolve<DataSourceThreePhase>().GetData();
-            this.eventAggregator.GetEvent<RcvEvent>().Subscribe(ShowRcvMsg);
-            this.eventAggregator.GetEvent<SendEvent>().Subscribe(ShowSendMsg);
+            //this.eventAggregator.GetEvent<RcvEvent>().Subscribe(ShowRcvMsg);
+            //this.eventAggregator.GetEvent<SendEvent>().Subscribe(ShowSendMsg);
             SCmd = "cmd=0101,data=null";
             client = new Socket(SocketType.Dgram, ProtocolType.Udp);
             serverip = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 10001);
@@ -528,7 +536,7 @@ namespace YQ.FunctionModule.ViewModels
             client.Bind(clientip);
             defaultschemeid = Convert.ToInt32(ConfigHelper.GetValue("defaultschemeid"));
             PowerHelper.Std_consant= Convert.ToDouble(ConfigHelper.GetValue("edtFreq"));
-            log = this.container.Resolve<ILogService>();
+            //log = this.container.Resolve<ILogService>();
             listenInBll = this.container.Resolve<ListenInBll>();
             comList = listenInBll.GetComs();
             Start();
