@@ -183,8 +183,9 @@ namespace YQ.FunctionModule.ViewModels
             _ClearCommand ?? (_ClearCommand = new DelegateCommand(Clear));
         private void Clear()
         {
-            TextRcv=string.Empty;
-            TextSend=string.Empty;
+            //TextRcv=string.Empty;
+            //TextSend=string.Empty;
+            this.eventAggregator.GetEvent<ClearEvent>().Publish();
         }
         #endregion
         #region 方法
@@ -295,9 +296,9 @@ namespace YQ.FunctionModule.ViewModels
                 if (queue.Count > 0)
                 {
                     ReceiveData receiveDat = queue.Peek();
-                    Task.Run(() => {
+                    //Task.Run(() => {
                         DealWidthRequest(receiveDat.abstractCmd, receiveDat.RemoteIP, receiveDat.RemotePort);
-                    });
+                    //});
                     queue.Dequeue();
                     Thread.Sleep(2);
                 }

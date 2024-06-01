@@ -30,6 +30,7 @@ namespace YQ.FunctionModule.Views
             InitializeComponent();
             eventAggregator.GetEvent<RcvEvent>().Subscribe(ShowRcvMsg);
             eventAggregator.GetEvent<SendEvent>().Subscribe(ShowSendMsg);
+            eventAggregator.GetEvent<ClearEvent>().Subscribe(Clear);
             log = container.Resolve<ILogService>();
         }
         private void ShowSendMsg(string msg)
@@ -65,6 +66,14 @@ namespace YQ.FunctionModule.Views
                 }));
             //}
             log.Info(msg);
+        }
+        private void Clear()
+        {
+            rtxtSrvRcv.Document.Blocks.Clear();
+            rtxtSrvRcv.AppendText(Environment.NewLine);
+            rtxtSrvSend.Document.Blocks.Clear();
+            rtxtSrvSend.AppendText(Environment.NewLine);
+
         }
     }
 }
