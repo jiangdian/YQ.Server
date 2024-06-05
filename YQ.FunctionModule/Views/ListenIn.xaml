@@ -43,7 +43,21 @@
             <Button Width="100" Name="btnStopSrv" Margin="{StaticResource ControlMargin}" Content="停止服务"  FontSize="12" Command="{Binding StopCommand}"/>
             <Button Width="100" Name="btnClear" Margin="{StaticResource ControlMargin}" Content="清除信息" FontSize="12" Command="{Binding ClearCommand}"/>
         </WrapPanel>
-        <RichTextBox x:Name="rtxtSrvRcv" Grid.Row="1" Margin="5 5 5 5" Grid.Column="0"     ScrollViewer.VerticalScrollBarVisibility="Auto"/>
-        <RichTextBox x:Name="rtxtSrvSend" Grid.Row="1" Grid.Column="1" Margin="5 5 5 5"   ScrollViewer.VerticalScrollBarVisibility="Auto"/>
+        <ListView Grid.Row='1' Margin="5 5 5 5" HorizontalContentAlignment="Stretch" ItemsSource="{Binding Rcvmsg}" BorderThickness="1">
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn    DisplayMemberBinding="{Binding Message}" Width="3000" />
+                </GridView>
+            </ListView.View>
+        </ListView>
+        <ListView Grid.Row='1' Grid.Column="1" HorizontalContentAlignment="Stretch" Margin="5 5 5 5" ItemsSource="{Binding Sendmsg}" BorderThickness="1">
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn    DisplayMemberBinding="{Binding Message}"  Width="3000"/>
+                </GridView>
+            </ListView.View>
+        </ListView>
+        <!--<RichTextBox x:Name="rtxtSrvRcv" Grid.Row="1" Margin="5 5 5 5" Grid.Column="0"     ScrollViewer.VerticalScrollBarVisibility="Auto"/>-->
+        <!--<RichTextBox x:Name="rtxtSrvSend" Grid.Row="1" Grid.Column="1" Margin="5 5 5 5"   ScrollViewer.VerticalScrollBarVisibility="Auto"/>-->
     </Grid>
 </UserControl>

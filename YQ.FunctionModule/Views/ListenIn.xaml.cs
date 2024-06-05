@@ -28,25 +28,25 @@ namespace YQ.FunctionModule.Views
         public ListenIn(IEventAggregator eventAggregator, IContainerExtension container)
         {
             InitializeComponent();
-            eventAggregator.GetEvent<RcvEvent>().Subscribe(ShowRcvMsg);
-            eventAggregator.GetEvent<SendEvent>().Subscribe(ShowSendMsg);
-            eventAggregator.GetEvent<ClearEvent>().Subscribe(Clear);
-            log = container.Resolve<ILogService>();
+            //eventAggregator.GetEvent<RcvEvent>().Subscribe(ShowRcvMsg);
+            //eventAggregator.GetEvent<SendEvent>().Subscribe(ShowSendMsg);
+            //eventAggregator.GetEvent<ClearEvent>().Subscribe(Clear);
+            //log = container.Resolve<ILogService>();
         }
         private void ShowSendMsg(string msg)
         {
             lock (oSendLock)
             {
-                rtxtSrvSend.BeginInvoke(() =>
-                {
-                    if (rtxtSrvSend.Document.Blocks.Count > 100)
-                    {
-                        rtxtSrvSend.Document.Blocks.Clear();
-                        rtxtSrvSend.AppendText(Environment.NewLine);
-                    }
-                    rtxtSrvSend.AppendText(DateTime.Now.ToString("HH:mm:ss.fff ") + msg + Environment.NewLine);
-                    rtxtSrvSend.ScrollToEnd();
-                });
+                //    rtxtSrvSend.BeginInvoke(() =>
+                //    {
+                //        if (rtxtSrvSend.Document.Blocks.Count > 100)
+                //        {
+                //            rtxtSrvSend.Document.Blocks.Clear();
+                //            rtxtSrvSend.AppendText(Environment.NewLine);
+                //        }
+                //        rtxtSrvSend.AppendText(DateTime.Now.ToString("HH:mm:ss.fff ") + msg + Environment.NewLine);
+                //        rtxtSrvSend.ScrollToEnd();
+                //    });
             }
             log.Info(msg);
         }
@@ -54,26 +54,26 @@ namespace YQ.FunctionModule.Views
         {
             //lock (oRcvLock)
             //{
-                rtxtSrvRcv.BeginInvoke(new Action(() =>
-                {
-                    if (rtxtSrvRcv.Document.Blocks.Count > 100)
-                    {
-                        rtxtSrvRcv.Document.Blocks.Clear();
-                        rtxtSrvRcv.AppendText(Environment.NewLine);
-                    }
-                    rtxtSrvRcv.AppendText(DateTime.Now.ToString("HH:mm:ss.fff ") + msg + Environment.NewLine);
-                    rtxtSrvRcv.ScrollToEnd();
-                }));
+                //rtxtSrvRcv.BeginInvoke(new Action(() =>
+                //{
+                //    if (rtxtSrvRcv.Document.Blocks.Count > 100)
+                //    {
+                //        rtxtSrvRcv.Document.Blocks.Clear();
+                //        rtxtSrvRcv.AppendText(Environment.NewLine);
+                //    }
+                //    rtxtSrvRcv.AppendText(DateTime.Now.ToString("HH:mm:ss.fff ") + msg + Environment.NewLine);
+                //    rtxtSrvRcv.ScrollToEnd();
+                //}));
             //}
             log.Info(msg);
         }
-        private void Clear()
-        {
-            rtxtSrvRcv.Document.Blocks.Clear();
-            rtxtSrvRcv.AppendText(Environment.NewLine);
-            rtxtSrvSend.Document.Blocks.Clear();
-            rtxtSrvSend.AppendText(Environment.NewLine);
+        //private void Clear()
+        //{
+        //    //rtxtSrvRcv.Document.Blocks.Clear();
+        //    //rtxtSrvRcv.AppendText(Environment.NewLine);
+        //    rtxtSrvSend.Document.Blocks.Clear();
+        //    rtxtSrvSend.AppendText(Environment.NewLine);
 
-        }
+        //}
     }
 }
