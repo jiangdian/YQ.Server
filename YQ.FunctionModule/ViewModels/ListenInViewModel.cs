@@ -1,6 +1,7 @@
 ﻿using SECS.Parsing;
 using System;
 using System.Collections.Concurrent;
+using System.Collections.ObjectModel;
 using System.Diagnostics.Metrics;
 using System.IO.Ports;
 using System.Linq;
@@ -296,9 +297,9 @@ namespace YQ.FunctionModule.ViewModels
                 if (queue.Count > 0)
                 {
                     ReceiveData receiveDat = queue.Peek();
-                    //Task.Run(() => {
+                    Task.Run(() => {
                         DealWidthRequest(receiveDat.abstractCmd, receiveDat.RemoteIP, receiveDat.RemotePort);
-                    //});
+                    });
                     queue.Dequeue();
                     Thread.Sleep(2);
                 }
@@ -460,7 +461,7 @@ namespace YQ.FunctionModule.ViewModels
                         {
                             return;
                         }
-                        if (buffer1.Length < 5)
+                        if (buffer1.Length < 5 || buffer1.Length > 256)
                         {
                             return;
                         }
