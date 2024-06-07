@@ -436,7 +436,7 @@ namespace YQ.FunctionModule.ViewModels
                             }
                         }
                     }
-                    else if (port.PortName.EndsWith("M1"))
+                    else if (port.PortName.EndsWith("1"))
                     {
                         if (port.BytesToRead > 0)
                         {
