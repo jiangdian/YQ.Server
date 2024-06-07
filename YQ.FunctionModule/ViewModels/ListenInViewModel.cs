@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
+using System.Diagnostics.Eventing.Reader;
 using System.Diagnostics.Metrics;
 using System.IO.Ports;
 using System.Linq;
@@ -435,7 +436,7 @@ namespace YQ.FunctionModule.ViewModels
                             }
                         }
                     }
-                    else if (port.PortName.EndsWith("1"))
+                    else if (port.PortName.EndsWith("M1"))
                     {
                         if (port.BytesToRead > 0)
                         {
@@ -488,7 +489,16 @@ namespace YQ.FunctionModule.ViewModels
                         {
                             return;
                         }
-                        data = dataArray[0] + ";" + dataArray[1] + ";" + BitConverter.ToString(buffer1).Replace("-", "");
+                        if(dataArray.Length==3)
+                        {
+                            data = dataArray[0].ToString()+ dataArray[1].ToString() + ";" + dataArray[2] + ";" + BitConverter.ToString(buffer1).Replace("-", "");
+                        }
+                        else
+                        {
+                            data = dataArray[0] + ";" + dataArray[1] + ";" + BitConverter.ToString(buffer1).Replace("-", "");
+                        }
+
+                        
                         res = $"cmd=1007,data={data}";
                     }
                     byte[] buffer = Encoding.UTF8.GetBytes(res);
