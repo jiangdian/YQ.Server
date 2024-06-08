@@ -215,18 +215,19 @@ namespace YQ.FunctionModule.ViewModels
             {
                 return;
             }
-            //lock (oRcvLock)
-            //{
-                
+            lock (oRcvLock)
+            {
+
                 Application.Current.Dispatcher.Invoke(() =>
                 {
                     if (Rcvmsg.Count > 100)
                     {
                         Rcvmsg.Clear();
+                        GC.Collect();
                     }
                     Rcvmsg.Insert(0, new Msgs { Message = DateTime.Now.ToString("HH:mm:ss.fff ") + msg });
                 });
-            //}
+            }
             log.Info(msg);
         }
         /// <summary>
@@ -247,6 +248,7 @@ namespace YQ.FunctionModule.ViewModels
                     {
                         //TextSend = TextSend.Substring(TextSend.IndexOf(Environment.NewLine, 2000) + 2);
                         Sendmsg.Clear();
+                        GC.Collect();
                     }
 
                     Sendmsg.Insert(0, new Msgs { Message = DateTime.Now.ToString("HH:mm:ss.fff ") + msg });
@@ -285,7 +287,7 @@ namespace YQ.FunctionModule.ViewModels
             string rcvmsg = Encoding.UTF8.GetString(data);
             AbstractCmd cmd_rcv = new RequestCmd(rcvmsg);
             //this.eventAggregator.GetEvent<RcvEvent>().Publish("接收:" + rcvmsg.ToString());
-            ShowRcvMsg("接收:" + rcvmsg.ToString());
+            
             ReceiveData receiveData = new ReceiveData(cmd_rcv.cmd, cmd_rcv, remote.Address, remote.Port);
             Remote = remote;
             IsC = true;
@@ -322,6 +324,7 @@ namespace YQ.FunctionModule.ViewModels
                 {
                     ReceiveData receiveDat = queue.Peek();
                     Task.Run(() => {
+                        ShowRcvMsg("接收:" + receiveDat.abstractCmd.ToString());
                         DealWidthRequest(receiveDat.abstractCmd, receiveDat.RemoteIP, receiveDat.RemotePort);
                     });
                     queue.Dequeue();
