@@ -10,10 +10,13 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Markup;
+using System.Xml.Linq;
 using YQ.FreeSQL.Entity;
 using YQ.FunctionModule.Bll;
+using YQ.FunctionModule.Common;
 using YQ.Parsing;
 using YQ.Tool;
 using YQ.Tool.JY;
@@ -287,30 +290,30 @@ namespace YQ.FunctionModule.ViewModels
             string rcvmsg = Encoding.UTF8.GetString(data);
             AbstractCmd cmd_rcv = new RequestCmd(rcvmsg);
             //this.eventAggregator.GetEvent<RcvEvent>().Publish("接收:" + rcvmsg.ToString());
-            
+            //ShowRcvMsg("接收:" + cmd_rcv.ToString());
             ReceiveData receiveData = new ReceiveData(cmd_rcv.cmd, cmd_rcv, remote.Address, remote.Port);
             Remote = remote;
             IsC = true;
-            if (defaultschemeid == -1)
-            {
+            //if (defaultschemeid == -1)
+            //{
                 //var ldata = queue.Where(t => t.id == cmd_rcv.cmd&&t.abstractCmd.data==cmd_rcv.data);//判断重复命令的队列
                 //if (ldata.Count() == 0)
                 //{
                 queue.Enqueue(receiveData);
                 //}
-            }
-            else
-            {
-                if (queue.Count == 0)//只处理一条命令的队列
-                {
-                    queue.Enqueue(receiveData);
-                }
-                else
-                {
-                    Thread.Sleep(1551);
-                    SendUDPMsgBack(receiveData.RemoteIP, receiveData.RemotePort, new ResponseCmd(cmd_rcv.cmd, 1, "busy"));
-                }
-            }
+            //}
+            //else
+            //{
+            //    if (queue.Count == 0)//只处理一条命令的队列
+            //    {
+            //        queue.Enqueue(receiveData);
+            //    }
+            //    else
+            //    {
+            //        Thread.Sleep(1551);
+            //        SendUDPMsgBack(receiveData.RemoteIP, receiveData.RemotePort, new ResponseCmd(cmd_rcv.cmd, 1, "busy"));
+            //    }
+            //}
         }
 
         /// <summary>
@@ -328,7 +331,7 @@ namespace YQ.FunctionModule.ViewModels
                         DealWidthRequest(receiveDat.abstractCmd, receiveDat.RemoteIP, receiveDat.RemotePort);
                     });
                     queue.Dequeue();
-                    Thread.Sleep(2);
+                    Thread.Sleep(1);
                 }
             }
         }
@@ -347,7 +350,7 @@ namespace YQ.FunctionModule.ViewModels
                     {
                         UDPSrv?.SendData(receiveDat, Remote);
                         cqueue.TryDequeue(out byte[] receiveDat1);
-                        Thread.Sleep(2);
+                        Thread.Sleep(1);
                     }
                 }
             }
@@ -420,11 +423,16 @@ namespace YQ.FunctionModule.ViewModels
                         {
                             buffer1 = new byte[port.BytesToRead];
                             port.Read(buffer1, 0, buffer1.Length);
-
+                            var str1 = string.Empty;
 
                             ReceiveData.AddRange(buffer1);
+                            foreach (byte b in ReceiveData.ToArray())
+                            {
+                                str1 += b.ToString("X2");
+                            }
+                            LogService.Instance.Info(port.PortName + " 上报#:" + str1);
                             var Result = MeterInfoDataPack376.Instance.TryPackData(ReceiveData.ToArray());
-                            if (Result != DataPackMetaData.Null)
+                            while (Result != DataPackMetaData.Null)
                             {
                                 byte[] resbytes = ReceiveData.Skip((int)Result.StartIndex).Take((int)(Result.Length)).ToArray();
                                 data = "0" + ";" + "9" + ";" + BitConverter.ToString(resbytes).Replace("-", "");
@@ -436,7 +444,21 @@ namespace YQ.FunctionModule.ViewModels
                                 }
                                 LogService.Instance.Info(port.PortName + " 上报:" + str);
                                 ReceiveData.RemoveRange(0, (int)Result.StartIndex + (int)Result.Length);
+                                Result = MeterInfoDataPack376.Instance.TryPackData(ReceiveData.ToArray());
                             }
+                            //if (Result != DataPackMetaData.Null)
+                            //{
+                            //    byte[] resbytes = ReceiveData.Skip((int)Result.StartIndex).Take((int)(Result.Length)).ToArray();
+                            //    data = "0" + ";" + "9" + ";" + BitConverter.ToString(resbytes).Replace("-", "");
+                            //    res = $"cmd=1007,ret=0,data={data}";
+                            //    var str = string.Empty;
+                            //    foreach (byte b in resbytes)
+                            //    {
+                            //        str += b.ToString("X2");
+                            //    }
+                            //    LogService.Instance.Info(port.PortName + " 上报:" + str);
+                            //    ReceiveData.RemoveRange(0, (int)Result.StartIndex + (int)Result.Length);
+                            //}
                         }
                     }
                     else if (port.PortName.EndsWith("1"))
@@ -510,7 +532,7 @@ namespace YQ.FunctionModule.ViewModels
                         return;
                     }
                     cqueue.Enqueue(buffer);
-                    port.DiscardInBuffer();
+                    //port.DiscardInBuffer();
                 }
             }
         }
@@ -587,15 +609,35 @@ namespace YQ.FunctionModule.ViewModels
             listenInBll = this.container.Resolve<ListenInBll>();
             comList = listenInBll.GetComs();
             Start();
+            //List<byte> bytes = new List<byte>();
+            //var ss = "685A008314000100004C090301052420000301052420F10100033C00683A00C32602090301052420A07847900120CCDC080E8C2FFB1605A5033DEDD3303CA44F16D301B7F543E75A7A9578EFDE0F01000429B16C5B1D04169816685E008314000100004D080301052420000301052420F10100034000FEFEFEFE683A00C32602080301052420A0ADD8900120D3D10BBCD7F1D6FEB2F83E2648DACC0895B26B227025F0F213078EED393171730100048FD9ADB00CB6164716";
+            //for (int i = 0; i < ss.Length; i += 2)
+            //{
+            //    byte b = Convert.ToByte(ss.Substring(i, 2), 16);
+            //    bytes.Add(b);
+            //}
+            //var Result = MeterInfoDataPack376.Instance.TryPackData(bytes.ToArray());
+            //while (Result != DataPackMetaData.Null)
+            //{
+            //    MessageBox.Show(Result.ToString());
+            //    bytes.RemoveRange(0, (int)Result.StartIndex + (int)Result.Length);
+            //    Result = MeterInfoDataPack376.Instance.TryPackData(bytes.ToArray());
+            //}
+
             //Task.Run(async () =>
             //{
             //    await Task.Delay(5000);
-            //    int i = 100000;
+            //    int i = 1001;
+            //    AbstractCmd cmd_rcv = new RequestCmd("cmd=1007,ret=0,data=8;1;68470043260201000000000010294707010148227f000101020412000116021a07e804120301020203110911000101020216041001f40203110911000101020216041001f400ecc716");
+            //    //this.eventAggregator.GetEvent<RcvEvent>().Publish("接收:" + rcvmsg.ToString());
+            //    //ShowRcvMsg("接收:" + cmd_rcv.ToString());
+            //    ReceiveData receiveData = new ReceiveData(cmd_rcv.cmd, cmd_rcv, clientip.Address, 10000);
             //    while (i > 0)
             //    {
-            //        ShowRcvMsg("接收:" + "cmd = 1007, ret = 0, data = 8; 1; 68470043260201000000000010294707010148227f000101020412000116021a07e804120301020203110911000101020216041001f40203110911000101020216041001f400ecc716");
+            //        queue.Enqueue(receiveData);
+            //        //ShowRcvMsg("接收:" + "cmd = 1007, ret = 0, data = 8; 1; 68470043260201000000000010294707010148227f000101020412000116021a07e804120301020203110911000101020216041001f40203110911000101020216041001f400ecc716");
             //        i--;
-            //        await Task.Delay(1);
+            //        //await Task.Delay(1);
             //    }
             //});
             //Task.Run(async () =>
