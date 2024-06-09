@@ -470,14 +470,14 @@ namespace YQ.Tool
                 //port.DiscardInBuffer();
                 //port.DiscardOutBuffer();
                 port.Write(sendData.ToArray(), 0, sendData.Count);
-                {
-                    string str = "";
-                    foreach (byte b in sendData.ToArray())
-                    {
-                        str += b.ToString("X2");
-                    }
-                    LogService.Instance.Info(port.PortName+" Send:"+str);
-                }
+                //{
+                //    string str = "";
+                //    foreach (byte b in sendData.ToArray())
+                //    {
+                //        str += b.ToString("X2");
+                //    }
+                //    LogService.Instance.Info(port.PortName+" Send:"+str);
+                //}
                 byte[] buffer = new byte[] { 1, 2 };
                 ReceiveData.AddRange(buffer);
                 return ReceiveData;

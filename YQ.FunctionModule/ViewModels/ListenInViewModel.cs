@@ -226,7 +226,7 @@ namespace YQ.FunctionModule.ViewModels
                     if (Rcvmsg.Count > 100)
                     {
                         Rcvmsg.Clear();
-                        GC.Collect();
+                        //GC.Collect();
                     }
                     Rcvmsg.Insert(0, new Msgs { Message = DateTime.Now.ToString("HH:mm:ss.fff ") + msg });
                 });
@@ -251,7 +251,7 @@ namespace YQ.FunctionModule.ViewModels
                     {
                         //TextSend = TextSend.Substring(TextSend.IndexOf(Environment.NewLine, 2000) + 2);
                         Sendmsg.Clear();
-                        GC.Collect();
+                        //GC.Collect();
                     }
 
                     Sendmsg.Insert(0, new Msgs { Message = DateTime.Now.ToString("HH:mm:ss.fff ") + msg });
@@ -423,26 +423,26 @@ namespace YQ.FunctionModule.ViewModels
                         {
                             buffer1 = new byte[port.BytesToRead];
                             port.Read(buffer1, 0, buffer1.Length);
-                            var str1 = string.Empty;
+                            //var str1 = string.Empty;
 
                             ReceiveData.AddRange(buffer1);
-                            foreach (byte b in ReceiveData.ToArray())
-                            {
-                                str1 += b.ToString("X2");
-                            }
-                            LogService.Instance.Info(port.PortName + " 上报#:" + str1);
+                            //foreach (byte b in ReceiveData.ToArray())
+                            //{
+                            //    str1 += b.ToString("X2");
+                            //}
+                            //LogService.Instance.Info(port.PortName + " 上报#:" + str1);
                             var Result = MeterInfoDataPack376.Instance.TryPackData(ReceiveData.ToArray());
                             while (Result != DataPackMetaData.Null)
                             {
                                 byte[] resbytes = ReceiveData.Skip((int)Result.StartIndex).Take((int)(Result.Length)).ToArray();
                                 data = "0" + ";" + "9" + ";" + BitConverter.ToString(resbytes).Replace("-", "");
                                 res = $"cmd=1007,ret=0,data={data}";
-                                var str = string.Empty;
-                                foreach (byte b in resbytes)
-                                {
-                                    str += b.ToString("X2");
-                                }
-                                LogService.Instance.Info(port.PortName + " 上报:" + str);
+                                //var str = string.Empty;
+                                //foreach (byte b in resbytes)
+                                //{
+                                //    str += b.ToString("X2");
+                                //}
+                                //LogService.Instance.Info(port.PortName + " 上报:" + str);
                                 ReceiveData.RemoveRange(0, (int)Result.StartIndex + (int)Result.Length);
                                 Result = MeterInfoDataPack376.Instance.TryPackData(ReceiveData.ToArray());
                             }
@@ -467,12 +467,12 @@ namespace YQ.FunctionModule.ViewModels
                         {
                             buffer1 = new byte[port.BytesToRead];
                             port.Read(buffer1, 0, buffer1.Length);
-                            var str = string.Empty;
-                            foreach (byte b in buffer1)
-                            {
-                                str += b.ToString("X2");
-                            }
-                            LogService.Instance.Info(port.PortName + " 上报:" + str);
+                            //var str = string.Empty;
+                            //foreach (byte b in buffer1)
+                            //{
+                            //    str += b.ToString("X2");
+                            //}
+                            //LogService.Instance.Info(port.PortName + " 上报:" + str);
                             var key = string.Empty;
                             if (port.PortName.Length == 5)
                             {
@@ -499,12 +499,12 @@ namespace YQ.FunctionModule.ViewModels
                         {
                             buffer1 = new byte[port.BytesToRead];
                             port.Read(buffer1, 0, buffer1.Length);
-                            var str = string.Empty;
-                            foreach (byte b in buffer1)
-                            {
-                                str += b.ToString("X2");
-                            }
-                            LogService.Instance.Info(port.PortName + " 上报:" + str);
+                            //var str = string.Empty;
+                            //foreach (byte b in buffer1)
+                            //{
+                            //    str += b.ToString("X2");
+                            //}
+                            //LogService.Instance.Info(port.PortName + " 上报:" + str);
                         }
                         else
                         {
@@ -627,7 +627,7 @@ namespace YQ.FunctionModule.ViewModels
             //Task.Run(async () =>
             //{
             //    await Task.Delay(5000);
-            //    int i = 1001;
+            //    int i = 10000;
             //    AbstractCmd cmd_rcv = new RequestCmd("cmd=1007,ret=0,data=8;1;68470043260201000000000010294707010148227f000101020412000116021a07e804120301020203110911000101020216041001f40203110911000101020216041001f400ecc716");
             //    //this.eventAggregator.GetEvent<RcvEvent>().Publish("接收:" + rcvmsg.ToString());
             //    //ShowRcvMsg("接收:" + cmd_rcv.ToString());
