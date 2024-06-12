@@ -16,15 +16,15 @@ namespace YQ.Parsing
         /// <summary>
         /// 上电电流
         /// </summary>
-        public static double PowerI = 0;
+        //public static double PowerI = 0;
 
 
         // <summary>
         /// 上电电压
         /// </summary>
-        public static double PowerPhase = 0;
+        //public static double PowerPhase = 0;
 
-        public IFreeSql freeSql;
+        //public IFreeSql freeSql;
         /// <summary>
         /// 误差的测试次数
         /// </summary>
@@ -35,12 +35,12 @@ namespace YQ.Parsing
         /// <summary>
         /// 正在走字
         /// </summary>
-        public static bool IsWalk = false;
+        //public static bool IsWalk = false;
 
         /// <summary>
         /// 读取标准表的示值缓存 -- 降低标准表读取接口的调用频率
         /// </summary>
-        public static List<string> StdBuffer = new List<string>();
+        //public static List<string> StdBuffer = new List<string>();
 
 
         public abstract AbstractCmd GetResponseCmd(AbstractCmd requestCmd);
@@ -133,7 +133,7 @@ namespace YQ.Parsing
         }
         public AbstractCmdAnalyse()
         {
-            freeSql = new FreeSqliteHelper(ConfigurationManager.AppSettings["SqlStr"].ToString()).GetDB();
+            //freeSql = new FreeSqliteHelper(ConfigurationManager.AppSettings["SqlStr"].ToString()).GetDB();
         }
 
     }

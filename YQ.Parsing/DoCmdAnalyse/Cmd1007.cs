@@ -17,24 +17,32 @@ namespace YQ.Parsing.DoCmdAnalyse
             AbstractCmd rlt = null;
             try
             {
-                var meterID = Convert.ToInt32(requestCmd.data[0]);
+                var meterID = requestCmd.data[0];
                 var comType = Convert.ToInt32(requestCmd.data[1]);
 
                 ComSet value = new ComSet();
+                ComParamter com;
                 if (comType == 9)//cco
                 {
-                    value = freeSql.Select<ComSet>()
-                    .Where(a => a.ComType == comType)
-                    .ToOne();
+                    //value = freeSql.Select<ComSet>()
+                    //.Where(a => a.ComType == comType)
+                    //.ToOne();
+                    com = new ComParamter("COM3-115200-e-8-1");
+                }
+                else if(comType == 1)
+                {
+                    //value = freeSql.Select<ComSet>()
+                    //.Where(a => a.MeterID == meterID && a.ComType == comType)
+                    //.ToOne();
+                    com = new ComParamter("COM"+meterID+comType + "-9600-E-8-1");
                 }
                 else
                 {
-                    value = freeSql.Select<ComSet>()
-                    .Where(a => a.MeterID == meterID && a.ComType == comType)
-                    .ToOne();
+                    com = new ComParamter("COM" + meterID + comType + "-9600-N-8-1");
+
                 }
 
-                ComParamter com = new ComParamter(value.ComName + "-" + value.ComPara);
+                //ComParamter com = new ComParamter(value.ComName + "-" + value.ComPara);
                 SerialManager.Instance.CreateAndOpenPort(com);
                 string sdata = requestCmd.data[2];
                

@@ -405,7 +405,7 @@ namespace YQ.FunctionModule.ViewModels
             {"11",new List<byte>() },
             {"12",new List<byte>() }
         };
-        public static ConcurrentQueue<byte[]> cqueue = new ConcurrentQueue<byte[]>();
+        public  ConcurrentQueue<byte[]> cqueue = new ConcurrentQueue<byte[]>();
         private void ListenInViewModel_DataReceived(object sender, System.IO.Ports.SerialDataReceivedEventArgs e)
         {
             if (e.EventType == SerialData.Chars)

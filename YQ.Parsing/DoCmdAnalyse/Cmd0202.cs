@@ -50,7 +50,7 @@ namespace YQ.Parsing.DoCmdAnalyse
 
                 powerThread = new Thread(() =>
                 {
-                    StdBuffer.Clear();
+                    //StdBuffer.Clear();
 
                   
                         PowerHelper.IsPowering = true;
