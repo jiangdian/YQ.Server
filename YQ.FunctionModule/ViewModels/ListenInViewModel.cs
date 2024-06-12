@@ -218,8 +218,8 @@ namespace YQ.FunctionModule.ViewModels
             {
                 return;
             }
-            lock (oRcvLock)
-            {
+            //lock (oRcvLock)
+            //{
 
                 Application.Current.Dispatcher.Invoke(() =>
                 {
@@ -230,7 +230,7 @@ namespace YQ.FunctionModule.ViewModels
                     }
                     Rcvmsg.Insert(0, new Msgs { Message = DateTime.Now.ToString("HH:mm:ss.fff ") + msg });
                 });
-            }
+            //}
             log.Info(msg);
         }
         /// <summary>
@@ -243,8 +243,8 @@ namespace YQ.FunctionModule.ViewModels
             {
                 return;
             }
-            lock (oSendLock)
-            {
+            //lock (oSendLock)
+            //{
                 Application.Current.Dispatcher.Invoke(() =>
                 {
                     if (Sendmsg.Count > 100)
@@ -257,7 +257,7 @@ namespace YQ.FunctionModule.ViewModels
                     Sendmsg.Insert(0, new Msgs { Message = DateTime.Now.ToString("HH:mm:ss.fff ") + msg });
                 });
                
-            }
+            //}
             log.Info(msg);
         }
         /// <summary>

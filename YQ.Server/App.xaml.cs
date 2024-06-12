@@ -4,6 +4,7 @@ using Prism.Modularity;
 using System;
 using System.Diagnostics;
 using System.Windows;
+using System.Windows.Threading;
 using YQ.Tool;
 using YQ.Tool.SingletonWindow;
 using YQ.UI.Views;
@@ -15,11 +16,19 @@ namespace YQ.Server
     /// </summary>
     public partial class App : PrismApplication
     {
+        private DispatcherTimer timer;
         public App()
         {
             this.Exit += App_Exit;
+            timer = new DispatcherTimer();
+            timer.Interval = TimeSpan.FromSeconds(600); // 设置计时器间隔为1秒
+            timer.Tick += Timer_Tick;
+            timer.Start(); // 启动计时器
         }
-
+        private void Timer_Tick(object sender, EventArgs e)
+        {
+            GC.Collect();
+        }
         private void App_Exit(object sender, ExitEventArgs e)
         {
             throw new NotImplementedException();
