@@ -18,6 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\GCHelper\GCHelper.csproj" />
     <ProjectReference Include="..\YQ.FunctionModule\YQ.FunctionModule.csproj" />
     <ProjectReference Include="..\YQ.Tool\YQ.Tool.csproj" />
     <ProjectReference Include="..\YQ.UI\YQ.UI.csproj" />
