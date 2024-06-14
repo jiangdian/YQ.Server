@@ -13,7 +13,7 @@ namespace GCHelper
 
         public void Start()
         {
-            cracker.Cracker();
+            cracker.Cracker(600);
         }
     }
 }
