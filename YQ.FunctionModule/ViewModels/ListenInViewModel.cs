@@ -655,6 +655,15 @@ namespace YQ.FunctionModule.ViewModels
 
             //    }
             //});
+            //645校验测试
+            //List<byte> list = new List<byte>();
+            //var sdata = "FE FE FE FE 68 99 99 99 99 99 99 68 14 10 3D 33 39 37 33 33 33 33 F7 F6 F5 F4 33 33 33 33 D8 16 ".Replace(" ", "");
+            //for (int i = 0; i < sdata.Length; i += 2)
+            //{
+            //    byte b = Convert.ToByte(sdata.Substring(i, 2), 16);
+            //    list.Add(b);
+            //}
+            //var ss = MeterInfoDataPack645.Instance.TryPackData(list);
         }
     }
 }
