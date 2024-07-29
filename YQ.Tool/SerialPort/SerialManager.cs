@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.IO.Ports;
 using System.Linq;
+using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 
 namespace YQ.Tool
@@ -15,7 +17,8 @@ namespace YQ.Tool
         private static readonly object lockobj = new object();//线程锁
         private static SerialManager instance;
         private Dictionary<string, SerialPort> portList;
-
+        private Dictionary<string, List<byte>> portReceiveData;
+        public event Action<byte[]> portReceive;
         #endregion
 
         #region public属性
@@ -24,6 +27,7 @@ namespace YQ.Tool
         /// 串口列表
         /// </summary>
         public Dictionary<string, SerialPort> PortList => portList;
+        public Dictionary<string, List<byte>> PortReceiveData => portReceiveData;
 
         /// <summary>
         /// 串口管理类实例
@@ -39,6 +43,7 @@ namespace YQ.Tool
         private SerialManager()
         {
             portList = new Dictionary<string, SerialPort>();
+            portReceiveData = new Dictionary<string, List<byte>>();
             // ShengDiHelper.SetDev_Port((byte)LocalSeting.powercom);//config read
         }
         #endregion
@@ -73,6 +78,7 @@ namespace YQ.Tool
                     }
                 }
                 this.PortList.Clear();
+                this.PortReceiveData.Clear();
                 instance = null;
             }
         }
@@ -97,7 +103,15 @@ namespace YQ.Tool
                 catch (Exception)
                 {
                 }
-                finally { try { this.PortList.Remove(portName); } catch { } }
+                finally
+                { 
+                    try 
+                    { 
+                        this.PortList.Remove(portName); 
+                        this.PortReceiveData.Remove(portName); 
+                    } 
+                    catch { } 
+                }
             }
         }
 
@@ -180,18 +194,103 @@ namespace YQ.Tool
         SerialPort OpenOnePort(string portName, int baudRate, Parity parity, int dataBits, StopBits stopBits)
         {
             SerialPort port = new SerialPort(portName, baudRate, parity, dataBits, stopBits);
+            List<byte> ReceiveData = new List<byte>();
             port.ReadTimeout = 500;
             port.WriteTimeout = 500;
             try
             {
                 port.Open();
+                port.DataReceived += Port_DataReceived;
                 portList.Add(portName, port);
+                portReceiveData.Add(portName, ReceiveData);
                 return port;
             }
             catch (Exception e)
             {
                 LogService.Instance.Error($"打开{portName}失败", e);
                 return null;
+            }
+        }
+
+        private void Port_DataReceived(object sender, SerialDataReceivedEventArgs e)
+        {
+            if (e.EventType == SerialData.Chars)
+            {
+                var port = sender as SerialPort;
+                var receviceData = PortReceiveData[port.PortName.ToUpper()];
+                lock (port)
+                {
+                    string data = string.Empty;
+                    string res = string.Empty;
+                    
+                    byte[] buffer1;
+                    if (port.BytesToRead > 0)
+                    {
+                        buffer1 = new byte[port.BytesToRead];
+                        port.Read(buffer1, 0, buffer1.Length);
+                        receviceData.AddRange(buffer1);
+                        if (port.PortName.Substring(3) == "3")//cco  376.2
+                        {
+                            var Result = MeterInfoDataPack376.Instance.TryPackData(receviceData.ToArray());
+                            while (Result != DataPackMetaData.Null)
+                            {
+                                byte[] resbytes = receviceData.Skip((int)Result.StartIndex).Take((int)(Result.Length)).ToArray();
+                                data = "0" + ";" + "9" + ";" + BitConverter.ToString(resbytes).Replace("-", "");
+                                res = $"cmd=1007,ret=0,data={data}";
+                                receviceData.RemoveRange(0, (int)Result.StartIndex + (int)Result.Length);
+                                Result = MeterInfoDataPack376.Instance.TryPackData(receviceData.ToArray());//循环校验
+                            }
+                        }
+                        else if (port.PortName.EndsWith("1"))//485-1  698
+                        {
+                            var Result = MeterInfoDataPack.Instance.TryPackData(receviceData.ToArray());
+                            if (Result != DataPackMetaData.Null)
+                            {
+                                var key = Regex.Replace(port.PortName, @"^.{3}|.$", "");//前三个字符、最后一个字符，替换为空
+                                byte[] resbytes = receviceData.Skip((int)Result.StartIndex).Take((int)(Result.Length)).ToArray();
+                                data = key + ";" + "1" + ";" + BitConverter.ToString(resbytes).Replace("-", "");
+                                res = $"cmd=1007,ret=0,data={data}";
+                                receviceData.RemoveRange(0, (int)Result.StartIndex + (int)Result.Length);
+                            }
+                        }
+                        else//modbus，后新增645（485-2）
+                        {
+                            if (receviceData.ToArray().Length < 5)
+                            {
+                                return;
+                            }
+                            else if (receviceData.ToArray().Length > 256)
+                            {
+                                receviceData.Clear();
+                                return;
+                            }                                 
+                            string[] parts = Regex.Split(port.PortName.Substring(3), @"^(.*)(.)$").Where(p => !string.IsNullOrEmpty(p)).ToArray();
+                            if (receviceData.ElementAtOrDefault(0) == 0xFE|| receviceData.ElementAtOrDefault(0) == 0x68)
+                            {
+                                var Result = MeterInfoDataPack645.Instance.TryPackData(receviceData.ToArray());
+                                if (Result != DataPackMetaData.Null)
+                                {
+                                    byte[] resbytes = receviceData.Skip((int)Result.StartIndex).Take((int)(Result.Length)).ToArray();
+                                    data = parts[0] + ";" + parts[1] + ";" + BitConverter.ToString(resbytes).Replace("-", "");
+                                    res = $"cmd=1007,ret=0,data={data}";
+                                    receviceData.RemoveRange(0, (int)Result.StartIndex + (int)Result.Length);
+                                }
+                            }
+                            else
+                            {
+                                receviceData.Clear();
+                                data = parts[0] + ";" + parts[1] + ";" + BitConverter.ToString(receviceData.ToArray()).Replace("-", "");
+                                res = $"cmd=1007,data={data}";
+                            }
+                        }
+                    }
+                    byte[] buffer = Encoding.UTF8.GetBytes(res);
+                    if (buffer.Length < 5)
+                    {
+                        return;
+                    }
+                    portReceive.Invoke(buffer);
+                }
             }
         }
 

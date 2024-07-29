@@ -7,6 +7,7 @@ using System.Diagnostics.Metrics;
 using System.IO.Ports;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -382,161 +383,158 @@ namespace YQ.FunctionModule.ViewModels
             {
                 var com = new ComParamter(item.ComName + "-" + item.ComPara);
                 SerialManager.Instance.CreateAndOpenPort(com);
-                if (SerialManager.Instance.PortList.ContainsKey(item.ComName.ToUpper()))
-                {
-                    SerialManager.Instance.PortList[item.ComName.ToUpper()].DataReceived += ListenInViewModel_DataReceived;
-
-                }
             }
         }
-        List<byte> ReceiveData = new List<byte>();
-        Dictionary<string, List<byte>> RData = new Dictionary<string, List<byte>>()
-        {
-            {"1",new List<byte>() },
-            {"2",new List<byte>() },
-            {"3",new List<byte>() },
-            {"4",new List<byte>() },
-            {"5",new List<byte>() },
-            {"6",new List<byte>() },
-            {"7",new List<byte>() },
-            {"8",new List<byte>() },
-            {"9",new List<byte>() },
-            {"10",new List<byte>() },
-            {"11",new List<byte>() },
-            {"12",new List<byte>() }
-        };
+        
         public  ConcurrentQueue<byte[]> cqueue = new ConcurrentQueue<byte[]>();
-        private void ListenInViewModel_DataReceived(object sender, System.IO.Ports.SerialDataReceivedEventArgs e)
-        {
-            if (e.EventType == SerialData.Chars)
-            {
-                var port = sender as SerialPort;
-                lock (port)
-                {
-                    string data = string.Empty;
-                    string res = string.Empty;
-                    var dataArray = port.PortName.Substring(3).ToCharArray();
-                    byte[] buffer1;
-                    if (port.PortName.Substring(3) == "3")
-                    {
-                        if (port.BytesToRead > 0)
-                        {
-                            buffer1 = new byte[port.BytesToRead];
-                            port.Read(buffer1, 0, buffer1.Length);
-                            //var str1 = string.Empty;
+        #region 取消，移到串口管理
+        //List<byte> ReceiveData = new List<byte>();
+        //Dictionary<string, List<byte>> RData = new Dictionary<string, List<byte>>()
+        //{
+        //    {"1",new List<byte>() },
+        //    {"2",new List<byte>() },
+        //    {"3",new List<byte>() },
+        //    {"4",new List<byte>() },
+        //    {"5",new List<byte>() },
+        //    {"6",new List<byte>() },
+        //    {"7",new List<byte>() },
+        //    {"8",new List<byte>() },
+        //    {"9",new List<byte>() },
+        //    {"10",new List<byte>() },
+        //    {"11",new List<byte>() },
+        //    {"12",new List<byte>() }
+        //};
+        //private void ListenInViewModel_DataReceived(object sender, System.IO.Ports.SerialDataReceivedEventArgs e)
+        //{
+        //    if (e.EventType == SerialData.Chars)
+        //    {
+        //        var port = sender as SerialPort;
+        //        lock (port)
+        //        {
+        //            string data = string.Empty;
+        //            string res = string.Empty;
+        //            var dataArray = port.PortName.Substring(3).ToCharArray();
+        //            byte[] buffer1;
+        //            if (port.PortName.Substring(3) == "3")
+        //            {
+        //                if (port.BytesToRead > 0)
+        //                {
+        //                    buffer1 = new byte[port.BytesToRead];
+        //                    port.Read(buffer1, 0, buffer1.Length);
+        //                    //var str1 = string.Empty;
 
-                            ReceiveData.AddRange(buffer1);
-                            //foreach (byte b in ReceiveData.ToArray())
-                            //{
-                            //    str1 += b.ToString("X2");
-                            //}
-                            //LogService.Instance.Info(port.PortName + " 上报#:" + str1);
-                            var Result = MeterInfoDataPack376.Instance.TryPackData(ReceiveData.ToArray());
-                            while (Result != DataPackMetaData.Null)
-                            {
-                                byte[] resbytes = ReceiveData.Skip((int)Result.StartIndex).Take((int)(Result.Length)).ToArray();
-                                data = "0" + ";" + "9" + ";" + BitConverter.ToString(resbytes).Replace("-", "");
-                                res = $"cmd=1007,ret=0,data={data}";
-                                //var str = string.Empty;
-                                //foreach (byte b in resbytes)
-                                //{
-                                //    str += b.ToString("X2");
-                                //}
-                                //LogService.Instance.Info(port.PortName + " 上报:" + str);
-                                ReceiveData.RemoveRange(0, (int)Result.StartIndex + (int)Result.Length);
-                                Result = MeterInfoDataPack376.Instance.TryPackData(ReceiveData.ToArray());
-                            }
-                            //if (Result != DataPackMetaData.Null)
-                            //{
-                            //    byte[] resbytes = ReceiveData.Skip((int)Result.StartIndex).Take((int)(Result.Length)).ToArray();
-                            //    data = "0" + ";" + "9" + ";" + BitConverter.ToString(resbytes).Replace("-", "");
-                            //    res = $"cmd=1007,ret=0,data={data}";
-                            //    var str = string.Empty;
-                            //    foreach (byte b in resbytes)
-                            //    {
-                            //        str += b.ToString("X2");
-                            //    }
-                            //    LogService.Instance.Info(port.PortName + " 上报:" + str);
-                            //    ReceiveData.RemoveRange(0, (int)Result.StartIndex + (int)Result.Length);
-                            //}
-                        }
-                    }
-                    else if (port.PortName.EndsWith("1"))
-                    {
-                        if (port.BytesToRead > 0)
-                        {
-                            buffer1 = new byte[port.BytesToRead];
-                            port.Read(buffer1, 0, buffer1.Length);
-                            //var str = string.Empty;
-                            //foreach (byte b in buffer1)
-                            //{
-                            //    str += b.ToString("X2");
-                            //}
-                            //LogService.Instance.Info(port.PortName + " 上报:" + str);
-                            var key = string.Empty;
-                            if (port.PortName.Length == 5)
-                            {
-                                key = port.PortName.Substring(3, 1);
-                            }
-                            else if (port.PortName.Length == 6)
-                            {
-                                key = port.PortName.Substring(3, 2);
-                            }
-                            RData[key].AddRange(buffer1);
-                            var Result = MeterInfoDataPack.Instance.TryPackData(RData[key].ToArray());
-                            if (Result != DataPackMetaData.Null)
-                            {
-                                byte[] resbytes = RData[key].Skip((int)Result.StartIndex).Take((int)(Result.Length)).ToArray();
-                                data = key + ";" + "1" + ";" + BitConverter.ToString(resbytes).Replace("-", "");
-                                res = $"cmd=1007,ret=0,data={data}";
-                                RData[key].RemoveRange(0, (int)Result.StartIndex + (int)Result.Length);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        if (port.BytesToRead > 0)
-                        {
-                            buffer1 = new byte[port.BytesToRead];
-                            port.Read(buffer1, 0, buffer1.Length);
-                            //var str = string.Empty;
-                            //foreach (byte b in buffer1)
-                            //{
-                            //    str += b.ToString("X2");
-                            //}
-                            //LogService.Instance.Info(port.PortName + " 上报:" + str);
-                        }
-                        else
-                        {
-                            return;
-                        }
-                        if (buffer1.Length < 5 || buffer1.Length > 256)
-                        {
-                            return;
-                        }
-                        if(dataArray.Length==3)
-                        {
-                            data = dataArray[0].ToString()+ dataArray[1].ToString() + ";" + dataArray[2] + ";" + BitConverter.ToString(buffer1).Replace("-", "");
-                        }
-                        else
-                        {
-                            data = dataArray[0] + ";" + dataArray[1] + ";" + BitConverter.ToString(buffer1).Replace("-", "");
-                        }
+        //                    ReceiveData.AddRange(buffer1);
+        //                    //foreach (byte b in ReceiveData.ToArray())
+        //                    //{
+        //                    //    str1 += b.ToString("X2");
+        //                    //}
+        //                    //LogService.Instance.Info(port.PortName + " 上报#:" + str1);
+        //                    var Result = MeterInfoDataPack376.Instance.TryPackData(ReceiveData.ToArray());
+        //                    while (Result != DataPackMetaData.Null)
+        //                    {
+        //                        byte[] resbytes = ReceiveData.Skip((int)Result.StartIndex).Take((int)(Result.Length)).ToArray();
+        //                        data = "0" + ";" + "9" + ";" + BitConverter.ToString(resbytes).Replace("-", "");
+        //                        res = $"cmd=1007,ret=0,data={data}";
+        //                        //var str = string.Empty;
+        //                        //foreach (byte b in resbytes)
+        //                        //{
+        //                        //    str += b.ToString("X2");
+        //                        //}
+        //                        //LogService.Instance.Info(port.PortName + " 上报:" + str);
+        //                        ReceiveData.RemoveRange(0, (int)Result.StartIndex + (int)Result.Length);
+        //                        Result = MeterInfoDataPack376.Instance.TryPackData(ReceiveData.ToArray());
+        //                    }
+        //                    //if (Result != DataPackMetaData.Null)
+        //                    //{
+        //                    //    byte[] resbytes = ReceiveData.Skip((int)Result.StartIndex).Take((int)(Result.Length)).ToArray();
+        //                    //    data = "0" + ";" + "9" + ";" + BitConverter.ToString(resbytes).Replace("-", "");
+        //                    //    res = $"cmd=1007,ret=0,data={data}";
+        //                    //    var str = string.Empty;
+        //                    //    foreach (byte b in resbytes)
+        //                    //    {
+        //                    //        str += b.ToString("X2");
+        //                    //    }
+        //                    //    LogService.Instance.Info(port.PortName + " 上报:" + str);
+        //                    //    ReceiveData.RemoveRange(0, (int)Result.StartIndex + (int)Result.Length);
+        //                    //}
+        //                }
+        //            }
+        //            else if (port.PortName.EndsWith("1"))
+        //            {
+        //                if (port.BytesToRead > 0)
+        //                {
+        //                    buffer1 = new byte[port.BytesToRead];
+        //                    port.Read(buffer1, 0, buffer1.Length);
+        //                    //var str = string.Empty;
+        //                    //foreach (byte b in buffer1)
+        //                    //{
+        //                    //    str += b.ToString("X2");
+        //                    //}
+        //                    //LogService.Instance.Info(port.PortName + " 上报:" + str);
+        //                    var key = string.Empty;
+        //                    if (port.PortName.Length == 5)
+        //                    {
+        //                        key = port.PortName.Substring(3, 1);
+        //                    }
+        //                    else if (port.PortName.Length == 6)
+        //                    {
+        //                        key = port.PortName.Substring(3, 2);
+        //                    }
+        //                    RData[key].AddRange(buffer1);
+        //                    var Result = MeterInfoDataPack.Instance.TryPackData(RData[key].ToArray());
+        //                    if (Result != DataPackMetaData.Null)
+        //                    {
+        //                        byte[] resbytes = RData[key].Skip((int)Result.StartIndex).Take((int)(Result.Length)).ToArray();
+        //                        data = key + ";" + "1" + ";" + BitConverter.ToString(resbytes).Replace("-", "");
+        //                        res = $"cmd=1007,ret=0,data={data}";
+        //                        RData[key].RemoveRange(0, (int)Result.StartIndex + (int)Result.Length);
+        //                    }
+        //                }
+        //            }
+        //            else
+        //            {
+        //                if (port.BytesToRead > 0)
+        //                {
+        //                    buffer1 = new byte[port.BytesToRead];
+        //                    port.Read(buffer1, 0, buffer1.Length);
+        //                    //var str = string.Empty;
+        //                    //foreach (byte b in buffer1)
+        //                    //{
+        //                    //    str += b.ToString("X2");
+        //                    //}
+        //                    //LogService.Instance.Info(port.PortName + " 上报:" + str);
+        //                }
+        //                else
+        //                {
+        //                    return;
+        //                }
+        //                if (buffer1.Length < 5 || buffer1.Length > 256)
+        //                {
+        //                    return;
+        //                }
+        //                if(dataArray.Length==3)
+        //                {
+        //                    data = dataArray[0].ToString()+ dataArray[1].ToString() + ";" + dataArray[2] + ";" + BitConverter.ToString(buffer1).Replace("-", "");
+        //                }
+        //                else
+        //                {
+        //                    data = dataArray[0] + ";" + dataArray[1] + ";" + BitConverter.ToString(buffer1).Replace("-", "");
+        //                }
 
-                        
-                        res = $"cmd=1007,data={data}";
-                    }
-                    byte[] buffer = Encoding.UTF8.GetBytes(res);
-                    if (buffer.Length < 5)
-                    {
-                        return;
-                    }
-                    cqueue.Enqueue(buffer);
-                    //port.DiscardInBuffer();
-                }
-            }
-        }
 
+        //                res = $"cmd=1007,data={data}";
+        //            }
+        //            byte[] buffer = Encoding.UTF8.GetBytes(res);
+        //            if (buffer.Length < 5)
+        //            {
+        //                return;
+        //            }
+        //            cqueue.Enqueue(buffer);
+        //            //port.DiscardInBuffer();
+        //        }
+        //    }
+        //}
+        #endregion
         private void SendUDPMsgBack(IPAddress remoteIP, int remotePort, AbstractCmd res)
         {
             try
@@ -608,7 +606,10 @@ namespace YQ.FunctionModule.ViewModels
             log = this.container.Resolve<ILogService>();
             listenInBll = this.container.Resolve<ListenInBll>();
             comList = listenInBll.GetComs();
+            SerialManager.Instance.portReceive += Instance_portReceive;
             Start();
+
+            
             //List<byte> bytes = new List<byte>();
             //var ss = "685A008314000100004C090301052420000301052420F10100033C00683A00C32602090301052420A07847900120CCDC080E8C2FFB1605A5033DEDD3303CA44F16D301B7F543E75A7A9578EFDE0F01000429B16C5B1D04169816685E008314000100004D080301052420000301052420F10100034000FEFEFEFE683A00C32602080301052420A0ADD8900120D3D10BBCD7F1D6FEB2F83E2648DACC0895B26B227025F0F213078EED393171730100048FD9ADB00CB6164716";
             //for (int i = 0; i < ss.Length; i += 2)
@@ -664,6 +665,11 @@ namespace YQ.FunctionModule.ViewModels
             //    list.Add(b);
             //}
             //var ss = MeterInfoDataPack645.Instance.TryPackData(list);
+        }
+
+        private void Instance_portReceive(byte[] obj)
+        {
+            cqueue.Enqueue(obj);
         }
     }
 }
